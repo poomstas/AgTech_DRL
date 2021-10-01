@@ -32,7 +32,8 @@ parser.add_argument('--TB_note',        type=str,   default="",         help='No
 
 args = parser.parse_args()
 
-# python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --batch_size 1024 --layer1_size 500 --layer2_size 400 --TB_note "This is a note"
+# python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --batch_size 64 --layer1_size 500 --layer2_size 400 --TB_note "This is a note"
+# python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --batch_size 64 --layer1_size 400 --layer2_size 300 --TB_note "This is a note"
 
 # Reference values like so: args.alpha
 print()
@@ -59,7 +60,7 @@ def ddpg_train(args, writer):
     env = gym.make('PCSE-v0')
 
     agent = Agent(alpha=args.alpha, beta=args.beta, input_dims=[11], tau=args.tau,
-                    env=env, batch_size=args.batch_size, layer1_size=args.layer1_size,
+                    env=env, TB_name=writer.log_dir, batch_size=args.batch_size, layer1_size=args.layer1_size,
                     layer2_size=args.layer2_size, n_actions=13)
 
     # Set a bunch of seeds here for reproducibility.
@@ -67,6 +68,7 @@ def ddpg_train(args, writer):
 
     reward_history = []
     mean_reward_history = [] # Average of the last 100 values
+    best_mean_reward = -float('inf')
     
     start_time = time.time()
 
@@ -79,22 +81,24 @@ def ddpg_train(args, writer):
             act = agent.choose_action(obs)
             new_state, reward, done, _ = env.step(act)
             agent.remember(obs, act, reward, new_state, int(done))
-            agent.learn() # Learn at every observation, not at the end of every episode
+            agent.learn() # Learn at every observation, not at the end of every episode -> But doesn't actually do it until the buffer is filled up.
             reward_sum += reward
             obs = new_state
 
         reward_history.append(reward_sum)
         writer.add_scalar('episode_reward', reward_sum, i)
-        avg_reward = np.mean(reward_history[-100:])
-        mean_reward_history.append(avg_reward)
-        writer.add_scalar('last_100_reward', avg_reward, i)
+        last_100_reward_avg = np.mean(reward_history[-100:])
+        mean_reward_history.append(last_100_reward_avg)
+        writer.add_scalar('last_100_reward', last_100_reward_avg, i)
 
-        print('Episode: {}\tReward: {:.2f}\t\tLast 100-Trial Avg.: {:.2f}'.format(i, reward_sum, avg_reward))
+        print('Episode: {}\tReward: {:.2f}\t\tLast 100-Trial Avg.: {:.2f}'.format(i, reward_sum, last_100_reward_avg))
 
         if i % 25 == 0 and i != 0:
-            agent.save_models()
-            print("Time Since Last Save: {:.1f} sec".format(time.time() - start_time))
-            start_time = time.time()
+            if last_100_reward_avg > best_mean_reward:
+                best_mean_reward = last_100_reward_avg
+                agent.save_models()
+                print("Time Since Last Save: {:.1f} sec".format(time.time() - start_time))
+                start_time = time.time()
 
 # %%
 def ddpg_load_and_run():

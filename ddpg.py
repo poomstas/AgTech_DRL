@@ -63,13 +63,13 @@ class ReplayBuffer:
 # %%
 class CriticNetwork(nn.Module):
     ''' Beta: Learning rate '''
-    def __init__(self, beta, input_dims, fc1_dims, fc2_dims, n_actions, name, chkpt_dir='./ddpg'):
+    def __init__(self, beta, input_dims, fc1_dims, fc2_dims, n_actions, TB_name):
         super(CriticNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
         self.fc2_dims = fc2_dims
         self.n_actions = n_actions
-        self.checkpoint_file = os.path.join(chkpt_dir, name + '_ddpg')
+        self.checkpoint_file = os.path.join(TB_name + '_Critic_ddpg')
 
         self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims)
         f1 = 1 / np.sqrt(self.fc1.weight.data.size()[0]) # No. for initializing the wts and biases of that NN layer
@@ -120,13 +120,13 @@ class CriticNetwork(nn.Module):
 
 # %%
 class ActorNetwork(nn.Module):
-    def __init__(self, alpha, input_dims, fc1_dims, fc2_dims, n_actions, name, chkpt_dir='./ddpg'):
+    def __init__(self, alpha, input_dims, fc1_dims, fc2_dims, n_actions, TB_name):
         super(ActorNetwork, self).__init__()
         self.input_dims = input_dims
         self.n_actions = n_actions
         self.fc1_dims = fc1_dims
         self.fc2_dims = fc2_dims
-        self.checkpoint_file = os.path.join(chkpt_dir, name + 'ddpg')
+        self.checkpoint_file = os.path.join(TB_name + '_Actor_ddpg')
 
         self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims)
         f1 = 1 / np.sqrt(self.fc1.weight.data.size()[0])
@@ -173,7 +173,7 @@ class ActorNetwork(nn.Module):
 
 # %%
 class Agent:
-    def __init__(self, alpha, beta, input_dims, tau, env, gamma=0.99, 
+    def __init__(self, alpha, beta, input_dims, tau, env, TB_name, gamma=0.99, 
                  n_actions=2, max_size=1000000, layer1_size=400, layer2_size=300, batch_size=64):
         self.gamma = gamma
         self.tau = tau
@@ -181,16 +181,16 @@ class Agent:
         self.batch_size = batch_size
 
         self.actor = ActorNetwork(alpha, input_dims, layer1_size, layer2_size, 
-                                n_actions=n_actions, name='Actor')
+                                n_actions=n_actions, TB_name=TB_name)
 
         self.target_actor = ActorNetwork(alpha, input_dims, layer1_size, layer2_size, 
-                                n_actions=n_actions, name='TargetActor') # Similar to deep-q network. Off-policy method, same architecture as Actor
+                                n_actions=n_actions, TB_name=TB_name) # Similar to deep-q network. Off-policy method, same architecture as Actor
 
         self.critic = CriticNetwork(beta, input_dims, layer1_size, layer2_size, 
-                                n_actions=n_actions, name='Critic')
+                                n_actions=n_actions, TB_name=TB_name)
 
         self.target_critic = CriticNetwork(beta, input_dims, layer1_size, layer2_size, 
-                                n_actions=n_actions, name='TargetCritic')
+                                n_actions=n_actions, TB_name=TB_name)
 
         self.noise = OUActionNoise(mu=np.zeros(n_actions)) # Mean of 0 over time
 
@@ -293,8 +293,3 @@ class Agent:
         self.critic.load_checkpoint()
         self.target_actor.load_checkpoint()
         self.target_critic.load_checkpoint()
-
-
-
-
-
