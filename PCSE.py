@@ -24,7 +24,6 @@ assert os.environ['CONDA_DEFAULT_ENV'] == 'spacewalk', 'Switch to correct enviro
 parser = argparse.ArgumentParser(description='Hyperparameters for DDPG')
 parser.add_argument('--alpha',          type=float, default=0.000025,   help='Learning Rate for the Actor (float)')
 parser.add_argument('--beta',           type=float, default=0.00025,    help='Learning Rate for the Critic (float')
-parser.add_argument('--input_dims',     type=list,  default=[11],       help='Dimension of state vector') 
 parser.add_argument('--tau',            type=float, default=0.001,      help='Param. that allows updating of target network to gradually approach the evaluation networks. For nice slow convergence.')
 parser.add_argument('--batch_size',     type=int,   default=64,         help='Batch Size for Actor & Critic training')
 parser.add_argument('--layer1_size',    type=int,   default=400,        help='Layer 1 size')
@@ -33,13 +32,15 @@ parser.add_argument('--TB_note',        type=str,   default="",         help='No
 
 args = parser.parse_args()
 
+# python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --batch_size 1024 --layer1_size 500 --layer2_size 400 --TB_note "This is a note"
+
 # Reference values like so: args.alpha
 print()
 
 # %%
 writer_name = \
-    "DDPG_alpha_{}_beta_{}_inputdims_{}_tau_{}_batchsize_{}_layer1size_{}_layer2size_{}_{}".format(
-        args.alpha, args.beta, args.input_dims, args.tau, args.batch_size, 
+    "DDPG_alpha_{}_beta_{}_tau_{}_batchsize_{}_layer1size_{}_layer2size_{}_{}".format(
+        args.alpha, args.beta, args.tau, args.batch_size, 
         args.layer1_size, args.layer2_size, datetime.now().strftime("%Y%m%d_%H%M")
     )
 if args.TB_note != "":
@@ -57,21 +58,21 @@ def ddpg_train(args, writer):
 
     env = gym.make('PCSE-v0')
 
-    agent = Agent(alpha=args.alpha, beta=args.beta, input_dims=args.input_dims, tau=args.tau,
+    agent = Agent(alpha=args.alpha, beta=args.beta, input_dims=[11], tau=args.tau,
                     env=env, batch_size=args.batch_size, layer1_size=args.layer1_size,
                     layer2_size=args.layer2_size, n_actions=13)
 
     # Set a bunch of seeds here for reproducibility.
     np.random.seed(0)
 
-    score_history = [] # Change name to NPV_history
-    mean_score_history = [] # Change name to NPV_history; Average of the last 100 values
+    reward_history = []
+    mean_reward_history = [] # Average of the last 100 values
     
     start_time = time.time()
 
-    for i in range(10000):
+    for i in range(100000): # Approx 30,000 iter/day. This is approx. 3 days
         done = False
-        score = 0 # Change name to NPV
+        reward_sum = 0 # Change name to NPV
         obs = env.reset()
 
         while not done:
@@ -79,16 +80,16 @@ def ddpg_train(args, writer):
             new_state, reward, done, _ = env.step(act)
             agent.remember(obs, act, reward, new_state, int(done))
             agent.learn() # Learn at every observation, not at the end of every episode
-            score += reward
+            reward_sum += reward
             obs = new_state
 
-        score_history.append(score)
-        writer.add_scalar('episode_score', score, i)
-        avg_score = np.mean(score_history[-100:])
-        mean_score_history.append(avg_score)
-        writer.add_scalar('last_100_score', avg_score, i)
+        reward_history.append(reward_sum)
+        writer.add_scalar('episode_reward', reward_sum, i)
+        avg_reward = np.mean(reward_history[-100:])
+        mean_reward_history.append(avg_reward)
+        writer.add_scalar('last_100_reward', avg_reward, i)
 
-        print('Episode: {}\tScore: {:.2f}\t\tLast 100-Trial Avg.: {:.2f}'.format(i, score, avg_score))
+        print('Episode: {}\tReward: {:.2f}\t\tLast 100-Trial Avg.: {:.2f}'.format(i, reward_sum, avg_reward))
 
         if i % 25 == 0 and i != 0:
             agent.save_models()
