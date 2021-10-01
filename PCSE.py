@@ -1,11 +1,12 @@
-# %%
-# python PCSE.py
+'''
+    python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --batch_size 64 --layer1_size 500 --layer2_size 400 --TB_note "This is a note"
+    python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --batch_size 64 --layer1_size 400 --layer2_size 300 --TB_note "This is a note"
+'''
+
 # %%
 import time
 import spwk_agtech
 import gym
-import pickle
-import matplotlib.pyplot as plt
 import numpy as np
 import time
 import os
@@ -13,48 +14,42 @@ import argparse
 import argparse
 from ddpg import Agent
 from datetime import datetime
-from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
 # %%
 assert os.environ['CONDA_DEFAULT_ENV'] == 'spacewalk', 'Switch to correct environment!'
 
 # %%
-# Parse Hyperparameter Arguments
-parser = argparse.ArgumentParser(description='Hyperparameters for DDPG')
-parser.add_argument('--alpha',          type=float, default=0.000025,   help='Learning Rate for the Actor (float)')
-parser.add_argument('--beta',           type=float, default=0.00025,    help='Learning Rate for the Critic (float')
-parser.add_argument('--tau',            type=float, default=0.001,      help='Param. that allows updating of target network to gradually approach the evaluation networks. For nice slow convergence.')
-parser.add_argument('--batch_size',     type=int,   default=64,         help='Batch Size for Actor & Critic training')
-parser.add_argument('--layer1_size',    type=int,   default=400,        help='Layer 1 size')
-parser.add_argument('--layer2_size',    type=int,   default=300,        help='Layer 2 size')
-parser.add_argument('--TB_note',        type=str,   default="",         help='Note on TensorBoard')
+def parse_arguments(parser):
+    parser.add_argument('--alpha',          type=float, default=0.000025,   help='Learning Rate for the Actor (float)')
+    parser.add_argument('--beta',           type=float, default=0.00025,    help='Learning Rate for the Critic (float')
+    parser.add_argument('--tau',            type=float, default=0.001,      help='Param. that allows updating of target network to gradually approach the evaluation networks. For nice slow convergence.')
+    parser.add_argument('--batch_size',     type=int,   default=64,         help='Batch Size for Actor & Critic training')
+    parser.add_argument('--layer1_size',    type=int,   default=400,        help='Layer 1 size')
+    parser.add_argument('--layer2_size',    type=int,   default=300,        help='Layer 2 size')
+    parser.add_argument('--TB_note',        type=str,   default="",         help='Note on TensorBoard')
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-# python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --batch_size 64 --layer1_size 500 --layer2_size 400 --TB_note "This is a note"
-# python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --batch_size 64 --layer1_size 400 --layer2_size 300 --TB_note "This is a note"
-
-# Reference values like so: args.alpha
-print()
+    return args
 
 # %%
-writer_name = \
-    "DDPG_alpha_{}_beta_{}_tau_{}_batchsize_{}_layer1size_{}_layer2size_{}_{}".format(
-        args.alpha, args.beta, args.tau, args.batch_size, 
-        args.layer1_size, args.layer2_size, datetime.now().strftime("%Y%m%d_%H%M")
-    )
-if args.TB_note != "":
-    writer_name += "_" + args.TB_note
+def get_writer_name(args):
+    writer_name = \
+        "DDPG_alpha_{}_beta_{}_tau_{}_batchsize_{}_layer1size_{}_layer2size_{}_{}".format(
+            args.alpha, args.beta, args.tau, args.batch_size, 
+            args.layer1_size, args.layer2_size, datetime.now().strftime("%Y%m%d_%H%M")
+        )
+    if args.TB_note != "":
+        writer_name += "_" + args.TB_note
 
-writer_name = './TB/' + writer_name
+    writer_name = './TB/' + writer_name
+    print('TensorBoard Name: {}'.format(writer_name))
 
-print('TensorBoard Name: {}'.format(writer_name))
-writer_path = './TB/'
-writer = SummaryWriter(writer_name)
+    return writer_name
 
 # %%
-def has_plateaued(reward_history, patience=1000):
+def has_plateaued(reward_history, patience=500):
     ''' Simple function that checks for plateau. '''
     single_patience_mean = np.mean(reward_history[-patience:])
     double_patience_mean = np.mean(reward_history[-2*patience:])
@@ -66,6 +61,7 @@ def has_plateaued(reward_history, patience=1000):
 
     return plateau_bool
 
+# %%
 def ddpg_train(args, writer):
     ''' args contains the arguments, the writer is TensorBoard SummaryWriter object. '''
 
@@ -84,7 +80,7 @@ def ddpg_train(args, writer):
     
     start_time = time.time()
 
-    for i in range(100000): # Approx 30,000 iter/day. This is approx. 3 days
+    for i in range(100000): # Approx 30,000 iter/day. This is approx. 3 days (will most likely terminate way before)
         done = False
         reward_sum = 0 # Change name to NPV
         obs = env.reset()
@@ -135,25 +131,13 @@ def ddpg_load_and_run():
             obs, _, done, _ = env.step(act)
         env.render() # Render when episode is complete.
 
+# %%
 if __name__=='__main__':
+    parser = argparse.ArgumentParser(description='Hyperparameters for DDPG') # Parse hyperparameter arguments from CLI
+    args = parse_arguments(parser) # Reference values like so: args.alpha
+
+    writer_name = get_writer_name(args)
+    writer = SummaryWriter(writer_name)
+
     ddpg_train(args, writer)
-    # ddpg_load_and_run()
-
-
-
-# %%
-# env = gym.make("PCSE-v0")
-
-# rewards = 0
-# state = env.reset()
-# step = 0
-# done = False
-# while not done:
-#     step += 1
-#     action = env.action_space.sample()
-#     state_, reward, done, _ = env.step(action)
-#     rewards += reward
-#     state = state_
-# env.render()
-
-# %%
+    ddpg_load_and_run()
