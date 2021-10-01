@@ -1,6 +1,6 @@
 '''
-    python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --batch_size 64 --layer1_size 500 --layer2_size 400 --TB_note "This is a note"
-    python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --batch_size 64 --layer1_size 400 --layer2_size 300 --TB_note "This is a note"
+    python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --gamma 0.99 --batch_size 64 --layer1_size 500 --layer2_size 400 --TB_note "This is a note"
+    python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --gamma 0.99 --batch_size 64 --layer1_size 400 --layer2_size 300 --TB_note "This is a note"
 '''
 
 # %%
@@ -24,9 +24,10 @@ def parse_arguments(parser):
     parser.add_argument('--alpha',          type=float, default=0.000025,   help='Learning Rate for the Actor (float)')
     parser.add_argument('--beta',           type=float, default=0.00025,    help='Learning Rate for the Critic (float')
     parser.add_argument('--tau',            type=float, default=0.001,      help='Param. that allows updating of target network to gradually approach the evaluation networks. For nice slow convergence.')
+    parser.add_argument('--gamma',          type=float, default=0.99,       help='Discount factor')
     parser.add_argument('--batch_size',     type=int,   default=64,         help='Batch Size for Actor & Critic training')
-    parser.add_argument('--layer1_size',    type=int,   default=400,        help='Layer 1 size')
-    parser.add_argument('--layer2_size',    type=int,   default=300,        help='Layer 2 size')
+    parser.add_argument('--layer1_size',    type=int,   default=400,        help='Layer 1 size (same for actor & critic)')
+    parser.add_argument('--layer2_size',    type=int,   default=300,        help='Layer 2 size (same for actor & critic)')
     parser.add_argument('--TB_note',        type=str,   default="",         help='Note on TensorBoard')
 
     args = parser.parse_args()
@@ -49,7 +50,7 @@ def get_writer_name(args):
     return writer_name
 
 # %%
-def has_plateaued(reward_history, patience=500):
+def has_plateaued(reward_history, patience=100):
     ''' Simple function that checks for plateau. '''
     single_patience_mean = np.mean(reward_history[-patience:])
     double_patience_mean = np.mean(reward_history[-2*patience:])
@@ -64,11 +65,13 @@ def has_plateaued(reward_history, patience=500):
 # %%
 def ddpg_train(args, writer):
     ''' args contains the arguments, the writer is TensorBoard SummaryWriter object. '''
+    train_begin_time = time.time()
 
     env = gym.make('PCSE-v0')
 
     agent = Agent(alpha=args.alpha, beta=args.beta, input_dims=[11], tau=args.tau,
-                    env=env, TB_name=writer.log_dir, batch_size=args.batch_size, layer1_size=args.layer1_size,
+                    TB_name=writer.log_dir, gamma=args.gamma,
+                    batch_size=args.batch_size, layer1_size=args.layer1_size,
                     layer2_size=args.layer2_size, n_actions=13)
 
     # Set a bunch of seeds here for reproducibility.
@@ -80,7 +83,7 @@ def ddpg_train(args, writer):
     
     start_time = time.time()
 
-    for i in range(100000): # Approx 30,000 iter/day. This is approx. 3 days (will most likely terminate way before)
+    for i in range(30000): # Approx 30,000 iter/day (will almost certainly terminate before)
         done = False
         reward_sum = 0 # Change name to NPV
         obs = env.reset()
@@ -97,12 +100,14 @@ def ddpg_train(args, writer):
         writer.add_scalar('episode_reward', reward_sum, i)
         last_100_reward_avg = np.mean(reward_history[-100:])
         mean_reward_history.append(last_100_reward_avg)
-        writer.add_scalar('last_100_reward', last_100_reward_avg, i)
+        writer.add_scalar('last_100_reward_avg', last_100_reward_avg, i)
 
-        print('Episode: {}\tReward: {:.2f}\t\tLast 100-Trial Avg.: {:.2f}'.format(i, reward_sum, last_100_reward_avg))
+        print('Episode: {:<6s}\tReward: {:<10s}\tLast 100 Episode Avg.: {:<15s}\tTrain Time: {:.1f} sec'.format(
+            str(i), str(np.round(reward_sum, 2)), str(np.round(last_100_reward_avg, 2)), time.time()-train_begin_time)
+            )
         
-        if has_plateaued(reward_history):
-            print("Reached Plateau; Terminating Simulations.")
+        if has_plateaued(mean_reward_history):
+            print("\nReached Plateau; Terminating Simulations.\n")
             break
 
         if i % 25 == 0 and i != 0:
@@ -114,13 +119,15 @@ def ddpg_train(args, writer):
 
 # %%
 def ddpg_load_and_run():
+    ''' 
+        This needs some fixing! agent.load_models() gives the following error: 
+        FileNotFoundError: [Errno 2] No such file or directory: '_Actor_ddpg'
+    '''
     env = gym.make('PCSE-v0')
 
     # Parameter values here don't matter; will load from file.
-    agent = Agent(
-        alpha=1, beta=1, input_dims=[11], tau=1, env=env, batch_size=123, 
-        layer1_size=123, layer2_size=123, n_actions=13
-    )
+    agent = Agent(alpha=1, beta=1, input_dims=[11], tau=1, TB_name="", 
+                  batch_size=64, layer1_size=1, layer2_size=1, n_actions=13)
     agent.load_models()
     
     while True: # Demonstrate infinietly
@@ -140,4 +147,4 @@ if __name__=='__main__':
     writer = SummaryWriter(writer_name)
 
     ddpg_train(args, writer)
-    ddpg_load_and_run()
+    # ddpg_load_and_run()   # This needs to be fixed!
