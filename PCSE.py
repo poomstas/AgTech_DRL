@@ -54,6 +54,18 @@ writer_path = './TB/'
 writer = SummaryWriter(writer_name)
 
 # %%
+def has_plateaued(reward_history, patience=1000):
+    ''' Simple function that checks for plateau. '''
+    single_patience_mean = np.mean(reward_history[-patience:])
+    double_patience_mean = np.mean(reward_history[-2*patience:])
+
+    if len(reward_history) < 2*patience:
+        return False
+
+    plateau_bool = np.abs((single_patience_mean - double_patience_mean) / single_patience_mean)*100 < 0.1
+
+    return plateau_bool
+
 def ddpg_train(args, writer):
     ''' args contains the arguments, the writer is TensorBoard SummaryWriter object. '''
 
@@ -92,6 +104,10 @@ def ddpg_train(args, writer):
         writer.add_scalar('last_100_reward', last_100_reward_avg, i)
 
         print('Episode: {}\tReward: {:.2f}\t\tLast 100-Trial Avg.: {:.2f}'.format(i, reward_sum, last_100_reward_avg))
+        
+        if has_plateaued(reward_history):
+            print("Reached Plateau; Terminating Simulations.")
+            break
 
         if i % 25 == 0 and i != 0:
             if last_100_reward_avg > best_mean_reward:
