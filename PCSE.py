@@ -69,6 +69,8 @@ def ddpg_train(args, writer):
 
     score_history = [] # Change name to NPV_history
     
+    start_time = time.time()
+
     for i in range(10000):
         done = False
         score = 0 # Change name to NPV
@@ -85,12 +87,14 @@ def ddpg_train(args, writer):
         score_history.append(score)
         writer.add_scalar('final_score', score, i)
 
-        print('Episode: {}\tScore: {:.2f}\tLast 100-Trial Avg.: {:.2f}'.format(
+        print('Episode: {}\tScore: {:.2f}\t\tLast 100-Trial Avg.: {:.2f}'.format(
             i, score, np.mean(score_history[-100:])
         ))
 
-        if i % 25 == 0:
+        if i % 25 == 0 and i != 0:
             agent.save_models()
+            print("Time Since Last Save: {:.1f} sec".format(time.time() - start_time))
+            start_time = time.time()
 
 # %%
 def ddpg_load_and_run():
