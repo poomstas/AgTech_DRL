@@ -134,7 +134,7 @@ def ddpg_load_and_run():
 # %%
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Hyperparameters for DDPG') # Parse hyperparameter arguments from CLI
-    args = parse_arguments(parser) # Reference values like so: args.alpha
+    args = parse_arguments(parser) # Reference values like so: args.alpha 
 
     writer_name = get_writer_name(args)
     writer = SummaryWriter(writer_name)
