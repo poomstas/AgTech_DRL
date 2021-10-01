@@ -6,17 +6,15 @@ import spwk_agtech
 import gym
 import pickle
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 import numpy as np
-from datetime import datetime
 import time
 import os
 import argparse
-
-from ddpg import Agent
 import argparse
-
-# Add PyTorch Tensorflow implementation here to keep track of trials
+from ddpg import Agent
+from datetime import datetime
+from tqdm import tqdm
+from torch.utils.tensorboard import SummaryWriter
 
 # %%
 assert os.environ['CONDA_DEFAULT_ENV'] == 'spacewalk', 'Switch to correct environment!'
@@ -27,7 +25,7 @@ parser = argparse.ArgumentParser(description='Hyperparameters for DDPG')
 parser.add_argument('--alpha',          type=float, default=0.000025,   help='Learning Rate for the Actor (float)')
 parser.add_argument('--beta',           type=float, default=0.00025,    help='Learning Rate for the Critic (float')
 parser.add_argument('--input_dims',     type=list,  default=[11],       help='Dimension of state vector') 
-parser.add_argument('--tau',            type=float, default=0.001,      help='Param. that alows the update of target network to gradually approach the evaluation networks. For nice slow convergence.')
+parser.add_argument('--tau',            type=float, default=0.001,      help='Param. that allows updating of target network to gradually approach the evaluation networks. For nice slow convergence.')
 parser.add_argument('--batch_size',     type=int,   default=64,         help='Batch Size for Actor & Critic training')
 parser.add_argument('--layer1_size',    type=int,   default=400,        help='Layer 1 size')
 parser.add_argument('--layer2_size',    type=int,   default=300,        help='Layer 2 size')
@@ -39,9 +37,8 @@ args = parser.parse_args()
 print()
 
 # %%
-from torch.utils.tensorboard import SummaryWriter
 writer_name = \
-    "DDPG_alpha_{}_beta_{}_inputdims_{}_tau_{}_batchsize_{}_layer1size_{}_layer2size_{}_".format(
+    "DDPG_alpha_{}_beta_{}_inputdims_{}_tau_{}_batchsize_{}_layer1size_{}_layer2size_{}_{}".format(
         args.alpha, args.beta, args.input_dims, args.tau, args.batch_size, 
         args.layer1_size, args.layer2_size, datetime.now().strftime("%Y%m%d_%H%M")
     )
@@ -68,6 +65,7 @@ def ddpg_train(args, writer):
     np.random.seed(0)
 
     score_history = [] # Change name to NPV_history
+    mean_score_history = [] # Change name to NPV_history; Average of the last 100 values
     
     start_time = time.time()
 
@@ -85,11 +83,12 @@ def ddpg_train(args, writer):
             obs = new_state
 
         score_history.append(score)
-        writer.add_scalar('final_score', score, i)
+        writer.add_scalar('episode_score', score, i)
+        avg_score = np.mean(score_history[-100:])
+        mean_score_history.append(avg_score)
+        writer.add_scalar('last_100_score', avg_score, i)
 
-        print('Episode: {}\tScore: {:.2f}\t\tLast 100-Trial Avg.: {:.2f}'.format(
-            i, score, np.mean(score_history[-100:])
-        ))
+        print('Episode: {}\tScore: {:.2f}\t\tLast 100-Trial Avg.: {:.2f}'.format(i, score, avg_score))
 
         if i % 25 == 0 and i != 0:
             agent.save_models()
