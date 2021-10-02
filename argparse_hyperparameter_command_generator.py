@@ -10,10 +10,10 @@ TIME_PER_RUN = 15 # minutes
 NO_OF_PROCESSES = 4 # cores
 
 PARAMETERS = {
-    '--alphabeta':    [[0.1, 0.01], [0.01, 0.001], [0.001, 0.0001], [0.0001, 0.00001], [0.00001, 0.000001]], # Divides into --alpha, --beta
+    '--alphabeta':    [[0.01, 0.1], [0.001, 0.01], [0.0001, 0.001], [0.00001, 0.0001], [0.000001, 0.00001]], # Divides into --alpha, --beta
     '--tau':          [0.01, 0.001, 0.0001],
-    '--gamma':        [0.99],
-    '--batch_size':   [64, 128],
+    '--gamma':        [0.95, 0.99],
+    '--batch_size':   [32, 64, 128],
     '--layer12_size': [[300, 200], [400, 300], [500, 400], [600, 500], [700, 600], [800, 700]], # Divides into --layer1_size, --layer2_size
 }
 
@@ -40,8 +40,6 @@ combos = list(itertools.product(*PARAMETERS.values()))
 
 print("Total Number of Combinations: ", len(combos))
 print("Estimated Run Time: {} hours".format(len(combos) * TIME_PER_RUN / 60 / NO_OF_PROCESSES))
-
-combos
 
 # %% Write to file
 if os.path.isfile(OUTPUT_FILENAME):
