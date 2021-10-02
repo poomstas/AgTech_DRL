@@ -1,8 +1,3 @@
-'''
-    python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --gamma 0.99 --batch_size 64 --layer1_size 500 --layer2_size 400 --TB_note "This is a note"
-    python PCSE.py --alpha 0.000025 --beta 0.00025 --tau 0.001 --gamma 0.99 --batch_size 64 --layer1_size 400 --layer2_size 300 --TB_note "This is a note"
-'''
-
 # %%
 import time
 import spwk_agtech
@@ -108,6 +103,7 @@ def ddpg_train(args, writer):
         
         if has_plateaued(mean_reward_history):
             print("\nReached Plateau; Terminating Simulations.\n")
+            print("Writer: {}".format(writer.log_dir))
             break
 
         if i % 25 == 0 and i != 0:
