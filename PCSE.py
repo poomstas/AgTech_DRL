@@ -18,7 +18,8 @@ assert os.environ['CONDA_DEFAULT_ENV'] == 'spacewalk', 'Switch to correct enviro
 def parse_arguments(parser):
     parser.add_argument('--alpha',          type=float, default=0.000025,   help='Learning Rate for the Actor (float)')
     parser.add_argument('--beta',           type=float, default=0.00025,    help='Learning Rate for the Critic (float')
-    parser.add_argument('--tau',            type=float, default=0.001,      help='Param. that allows updating of target network to gradually approach the evaluation networks. For nice slow convergence.')
+    parser.add_argument('--tau',            type=float, default=0.001,      help='Controls soft updating the target network')
+    parser.add_argument('--sigma',          type=float, default=0.15,       help='StDev for Ornstein-Uhlenbeck process')
     parser.add_argument('--gamma',          type=float, default=0.99,       help='Discount factor')
     parser.add_argument('--batch_size',     type=int,   default=64,         help='Batch Size for Actor & Critic training')
     parser.add_argument('--layer1_size',    type=int,   default=400,        help='Layer 1 size (same for actor & critic)')
@@ -32,8 +33,8 @@ def parse_arguments(parser):
 # %%
 def get_writer_name(args):
     writer_name = \
-        "DDPG_alpha_{}_beta_{}_tau_{}_batchsize_{}_layer1size_{}_layer2size_{}_{}".format(
-            args.alpha, args.beta, args.tau, args.batch_size, 
+        "DDPG_alpha_{}_beta_{}_tau_{}_sigma_{}_batchsize_{}_layer1size_{}_layer2size_{}_{}".format(
+            args.alpha, args.beta, args.tau, args.sigma, args.batch_size, 
             args.layer1_size, args.layer2_size, datetime.now().strftime("%Y%m%d_%H%M")
         )
     if args.TB_note != "":
@@ -64,7 +65,7 @@ def ddpg_train(args, writer):
 
     env = gym.make('PCSE-v0')
 
-    agent = Agent(alpha=args.alpha, beta=args.beta, input_dims=[11], tau=args.tau,
+    agent = Agent(alpha=args.alpha, beta=args.beta, input_dims=[11], tau=args.tau, sigma=args.sigma,
                     TB_name=writer.log_dir, gamma=args.gamma,
                     batch_size=args.batch_size, layer1_size=args.layer1_size,
                     layer2_size=args.layer2_size, n_actions=13)
@@ -122,7 +123,7 @@ def ddpg_load_and_run():
     env = gym.make('PCSE-v0')
 
     # Parameter values here don't matter; will load from file.
-    agent = Agent(alpha=1, beta=1, input_dims=[11], tau=1, TB_name="", 
+    agent = Agent(alpha=1, beta=1, input_dims=[11], tau=1, sigma=0.15, TB_name="", 
                   batch_size=64, layer1_size=1, layer2_size=1, n_actions=13)
     agent.load_models()
     

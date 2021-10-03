@@ -179,7 +179,7 @@ class ActorNetwork(nn.Module):
 
 # %%
 class Agent:
-    def __init__(self, alpha, beta, input_dims, tau, TB_name, 
+    def __init__(self, alpha, beta, input_dims, tau, sigma, TB_name, 
                  gamma=0.99, n_actions=11, max_size=1000000, layer1_size=400, layer2_size=300, batch_size=64):
         self.gamma = gamma
         self.tau = tau
@@ -198,7 +198,7 @@ class Agent:
         self.target_critic = CriticNetwork(beta, input_dims, layer1_size, layer2_size, 
                                 n_actions=n_actions, TB_name=TB_name, target=True)
 
-        self.noise = OUActionNoise(mu=np.zeros(n_actions)) # Mean of 0 over time
+        self.noise = OUActionNoise(mu=np.zeros(n_actions), sigma=sigma) # Mean of 0 over time
 
         self.update_network_parameters() # In DDPG, we use soft updating instead.
 
