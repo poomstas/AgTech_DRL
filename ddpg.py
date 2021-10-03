@@ -8,13 +8,15 @@ import numpy as np
 # %%
 class OUActionNoise:
     ''' Orenstein-Uhlenbeck Noise implementation. Temporally correlated noise with mu=0.'''
-    def __init__(self, mu, sigma=0.15, theta=0.2, dt=1e-2, x0=None):
+    def __init__(self, mu, sigma_init=0.15, sigma_decay=0.9999, theta=0.2, dt=1e-2, x0=None):
         self.theta = theta
         self.mu = mu
-        self.sigma = sigma
+        self.sigma_init = sigma_init # Doesn't change
+        self.sigma = sigma_init # Changes
         self.dt = dt
         self.x0 = x0
         self.reset()
+        self.sigma_decay = sigma_decay
     
     def __call__(self):
         ''' Enables the operation below:
@@ -23,7 +25,9 @@ class OUActionNoise:
         x = self.x_prev + self.theta * (self.mu-self.x_prev)*self.dt + \
             self.sigma * np.sqrt(self.dt) * np.random.normal(size=self.mu.shape)
         self.x_prev = x
-        return x
+        current_sigma = self.sigma
+        self.sigma *= self.sigma_decay
+        return x, current_sigma
 
     def reset(self):
         self.x_prev = self.x0 if self.x0 is not None else np.zeros_like(self.mu)
@@ -179,7 +183,7 @@ class ActorNetwork(nn.Module):
 
 # %%
 class Agent:
-    def __init__(self, alpha, beta, input_dims, tau, sigma, TB_name, 
+    def __init__(self, alpha, beta, input_dims, tau, sigma_init, sigma_decay, sigma_revert=0.5, TB_name="", 
                  gamma=0.99, n_actions=11, max_size=1000000, layer1_size=400, layer2_size=300, batch_size=64):
         self.gamma = gamma
         self.tau = tau
@@ -198,20 +202,32 @@ class Agent:
         self.target_critic = CriticNetwork(beta, input_dims, layer1_size, layer2_size, 
                                 n_actions=n_actions, TB_name=TB_name, target=True)
 
-        self.noise = OUActionNoise(mu=np.zeros(n_actions), sigma=sigma) # Mean of 0 over time
+        self.sigma_init = sigma_init # Initial value of sigma
+        self.sigma_decay = sigma_decay
+        self.sigma_revert = sigma_revert
+        self.n_actions = n_actions
+        self.noise = OUActionNoise(mu=np.zeros(n_actions), sigma_init=self.sigma_init, sigma_decay=self.sigma_decay) # Mean of 0 over time
 
         self.update_network_parameters() # In DDPG, we use soft updating instead.
+    
+    def reset_OU(self):
+        print('Resetting OU Noise...')
+        print('sigma_init:', self.sigma_init)
+        print('sigma_decay:', self.sigma_decay)
+        print('sigma_revert:', self.sigma_revert)
+        self.noise = OUActionNoise(mu=np.zeros(self.n_actions), sigma_init=self.sigma_revert, sigma_decay=self.sigma_decay)
 
     def choose_action(self, observation):
         self.actor.eval() # This is very important!!! Tell torch you don't want to calculate the statistics for the batchnorm. Same with dropouts
 
         observation = torch.tensor(observation, dtype=torch.float).to(self.actor.device)
         mu = self.actor(observation).to(self.actor.device) # Make sure it's a cuda tensor
-        mu_prime = mu + torch.tensor(self.noise(), dtype=torch.float).to(self.actor.device) # Add a slight noise to the action
+        OU_noise, current_simga = self.noise()
+        mu_prime = mu + torch.tensor(OU_noise, dtype=torch.float).to(self.actor.device) # Add a slight noise to the action
         
         self.actor.train()
 
-        return mu_prime.cpu().detach().numpy() # Can't pass a torch tensor in OpenAI gym.
+        return mu_prime.cpu().detach().numpy(), current_simga # Can't pass a torch tensor in OpenAI gym.
 
     def remember(self, state, action, reward, new_state, done):
         self.memory.store_transition(state, action, reward, new_state, done)
