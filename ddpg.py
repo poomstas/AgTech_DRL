@@ -200,7 +200,7 @@ class Agent:
 
         self.noise = OUActionNoise(mu=np.zeros(n_actions)) # Mean of 0 over time
 
-        self.update_network_parameters(tau=1) # In Q-network, we don't want to chase a moving target. Update the target network parameters every tau timesteps. 
+        self.update_network_parameters() # In DDPG, we use soft updating instead.
 
     def choose_action(self, observation):
         self.actor.eval() # This is very important!!! Tell torch you don't want to calculate the statistics for the batchnorm. Same with dropouts
@@ -261,11 +261,8 @@ class Agent:
         # Update the parameters for the target actor and target critic
         self.update_network_parameters()
 
-    def update_network_parameters(self, tau=None):
-        ''' tau : parameter that allows the update of target network to gradually approach the evaluation networks. Nice slow convergence. '''
-        if tau is None:
-            tau = self.tau
-        
+    def update_network_parameters(self):
+        ''' θ_target = τ x θ_local + (1-τ) x θ_target . Soft Updating of network parameters'''
         actor_params = self.actor.named_parameters()
         critic_params = self.critic.named_parameters()
         target_actor_params = self.target_actor.named_parameters()
@@ -277,15 +274,13 @@ class Agent:
         target_critic_dict = dict(target_critic_params)
 
         for name in critic_state_dict:
-            critic_state_dict[name] = tau*critic_state_dict[name].clone() + \
-                                       (1-tau)*target_critic_dict[name].clone()
-
+            critic_state_dict[name] = self.tau*critic_state_dict[name].clone() + \
+                                       (1-self.tau)*target_critic_dict[name].clone()
         self.target_critic.load_state_dict(critic_state_dict)
 
         for name in actor_state_dict:
-            actor_state_dict[name] = tau*actor_state_dict[name].clone() + \
-                                       (1-tau)*actor_state_dict[name].clone()
-
+            actor_state_dict[name] = self.tau*actor_state_dict[name].clone() + \
+                                       (1-self.tau)*target_actor_dict[name].clone()
         self.target_actor.load_state_dict(actor_state_dict)
 
     def save_models(self):
