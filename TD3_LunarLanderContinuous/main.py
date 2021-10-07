@@ -52,16 +52,17 @@ def train_td3(args, writer):
     score_history = []
     
     for i in range(args.n_games):
-        observation = env.reset()
+        obs = env.reset()
         done = False
         score = 0
         while not done:
-            action = agent.choose_action(observation)
-            observation_, reward, done, info = env.step(action)
-            agent.remember(observation, action, reward, observation_, done)
+            action = agent.choose_action(obs)
+            obs_, reward, done, _ = env.step(action)
+            agent.remember(obs, action, reward, obs_, done)
             agent.learn()
             score += reward
-            observation = observation_
+            obs = obs_
+
         score_history.append(score)
         writer.add_scalar('Score', score, i)
         avg_score = np.mean(score_history[-100:])
