@@ -13,6 +13,7 @@ def parse_arguments(parser):
     parser.add_argument('--alpha',          type=float, default=0.001,  help='Learning Rate for the Actor (float)')
     parser.add_argument('--beta',           type=float, default=0.001,  help='Learning Rate for the Critic (float')
     parser.add_argument('--tau',            type=float, default=0.005,  help='Controls soft updating the target network')
+    parser.add_argument('--update_act_int', type=int,   default=2,      help='Update actor interval')
     parser.add_argument('--batch_size',     type=int,   default=100,    help='Batch Size for Actor & Critic training')
     parser.add_argument('--layer1_size',    type=int,   default=400,    help='Layer 1 size (same for actor & critic)')
     parser.add_argument('--layer2_size',    type=int,   default=300,    help='Layer 2 size (same for actor & critic)')
@@ -26,8 +27,8 @@ def parse_arguments(parser):
 # %%
 def get_writer_name(args):
     writer_name = \
-        "TD3LunarLanderCont_alpha_{}_beta_{}_tau_{}_batchsize_{}_layer1size_{}_layer2size_{}_nGames_{}_{}".format(
-            args.alpha, args.beta, args.tau, args.batch_size, args.layer1_size, args.layer2_size, 
+        "TD3LunarLanderCont_alpha_{}_beta_{}_tau_{}_UpdActInt_{}_batchsize_{}_layer1size_{}_layer2size_{}_nGames_{}_{}".format(
+            args.alpha, args.beta, args.tau, args.update_act_int, args.batch_size, args.layer1_size, args.layer2_size, 
             args.n_games, datetime.now().strftime("%Y%m%d_%H%M")
         )
 
@@ -45,7 +46,8 @@ def train_td3(args, writer):
 
     env = gym.make('LunarLanderContinuous-v2')
     agent = Agent(alpha=args.alpha, beta=args.beta, input_dims=env.observation_space.shape,
-                    tau=args.tau, env=env, batch_size=args.batch_size, layer1_size=args.layer1_size, 
+                    tau=args.tau, env=env, update_actor_interval=args.update_act_int,
+                    batch_size=args.batch_size, layer1_size=args.layer1_size, 
                     layer2_size=args.layer2_size, n_actions=env.action_space.shape[0])
 
     best_score = env.reward_range[0]

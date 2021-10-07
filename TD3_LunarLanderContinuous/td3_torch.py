@@ -30,6 +30,7 @@ class ReplayBuffer:
     def sample_buffer(self, batch_size):
         max_mem = min(self.mem_counter, self.mem_size)
         batch = np.random.choice(max_mem, batch_size)
+
         states = self.state_memory[batch]
         actions = self.action_memory[batch]
         rewards = self.reward_memory[batch]
@@ -145,7 +146,7 @@ class Agent:
 
         self.memory = ReplayBuffer(max_size, input_dims, n_actions)
 
-        self.update_network_parameters(tau=self.tau)
+        self.update_network_parameters(tau=1) # 1: copy to target networks
 
     def choose_action(self, observation):
         if self.time_step < self.warmup:
@@ -168,38 +169,39 @@ class Agent:
         if self.memory.mem_counter < self.batch_size:
             return
 
-        state, action, reward, new_state, done = self.memory.sample_buffer(self.batch_size)
+        states, actions, rewards, states_, dones = self.memory.sample_buffer(self.batch_size)
 
-        reward = T.tensor(reward, dtype=T.float).to(self.critic_1.device)
-        done   = T.tensor(done).to(self.critic_1.device)
-        state_ = T.tensor(new_state, dtype=T.float).to(self.critic_1.device)
-        state  = T.tensor(state, dtype=T.float).to(self.critic_1.device)
-        action = T.tensor(action, dtype=T.float).to(self.critic_1.device)
+        states  = T.tensor(states, dtype=T.float).to(self.critic_1.device)
+        actions = T.tensor(actions, dtype=T.float).to(self.critic_1.device)
+        rewards = T.tensor(rewards, dtype=T.float).to(self.critic_1.device)
+        states_ = T.tensor(states_, dtype=T.float).to(self.critic_1.device)
+        dones   = T.tensor(dones).to(self.critic_1.device)
 
-        target_actions = self.target_actor.forward(state_)
+        target_actions = self.target_actor.forward(states_)
         target_actions = target_actions + T.clamp(T.tensor(np.random.normal(scale=0.2)), -0.5, 0.5) # Smoothes the action chosen by the actor. From the paper
         target_actions = T.clamp(target_actions, self.min_actions[0], self.max_actions[0])
 
-        q1_ = self.target_critic_1.forward(state_, target_actions)
-        q2_ = self.target_critic_2.forward(state_, target_actions)
+        q1_ = self.target_critic_1.forward(states_, target_actions)
+        q2_ = self.target_critic_2.forward(states_, target_actions)
 
-        q1 = self.critic_1.forward(state, action)
-        q2 = self.critic_2.forward(state, action)
+        q1 = self.critic_1.forward(states, actions)
+        q2 = self.critic_2.forward(states, actions)
 
-        q1_[done] = 0.0
-        q2_[done] = 0.0
+        q1_[dones] = 0.0
+        q2_[dones] = 0.0
 
         q1_ = q1_.view(-1)
         q2_ = q2_.view(-1)
 
         critic_value_ = T.min(q1_, q2_)
 
-        target = reward + self.gamma * critic_value_
+        target = rewards + self.gamma * critic_value_
         target = target.view(self.batch_size, 1)
 
         self.critic_1.optimizer.zero_grad()
         self.critic_2.optimizer.zero_grad()
 
+        # Might not be the same as θi <- argmin_(θi) 1/N sum((y-Q_θi(s,a))^2) (from paper's pseudocode, p6)
         q1_loss = F.mse_loss(target, q1)
         q2_loss = F.mse_loss(target, q2)
         critic_loss = q1_loss + q2_loss
@@ -209,16 +211,13 @@ class Agent:
 
         self.learn_step_counter += 1
 
-        if self.learn_step_counter % self.update_actor_iter != 0:
-            return
-
-        self.actor.optimizer.zero_grad()
-        actor_q1_loss = self.critic_1.forward(state, self.actor.forward(state))
-        actor_loss = -T.mean(actor_q1_loss)
-        actor_loss.backward()
-        self.actor.optimizer.step()
-
-        self.update_network_parameters()
+        if self.learn_step_counter % self.update_actor_iter == 0:
+            self.actor.optimizer.zero_grad()
+            actor_q1_loss = self.critic_1.forward(states, self.actor.forward(states))
+            actor_loss = -T.mean(actor_q1_loss)
+            actor_loss.backward()
+            self.actor.optimizer.step()
+            self.update_network_parameters()
 
     def update_network_parameters(self, tau=None):
         if tau is None:
@@ -245,7 +244,7 @@ class Agent:
             critic_2[name] = tau * critic_2[name].clone() + (1-tau) * target_critic_2[name].clone()
 
         for name in actor:
-            actor[name] = tau * actor[name].clone() + (1-tau) * actor[name].clone()
+            actor[name] = tau * actor[name].clone() + (1-tau) * target_actor[name].clone()
 
         self.target_critic_1.load_state_dict(critic_1)
         self.target_critic_2.load_state_dict(critic_2)
