@@ -12,17 +12,20 @@ NO_OF_PROCESSES = 4 # simultaneous processes
 
 PARAMETERS = {
     '--alphabeta': [
-                    [0.001,   0.001],
-                    [0.0001,  0.0001],
-                    [0.01,    0.01],
-                    [0.001,   0.01],
-                    [0.0001,  0.001],
-                    [0.01,    0.1],
+                        [0.001,   0.001],
+                        [0.0001,  0.0001],
+                        [0.01,    0.01],
+                        [0.001,   0.01],
+                        [0.0001,  0.001],
+                        [0.01,    0.1],
                     ], # Divides into --alpha, --beta
-    # '--alphabeta':    [[0.01, 0.1], [0.001, 0.01], [0.0001, 0.001], [0.00001, 0.0001], [0.000001, 0.00001]], # Divides into --alpha, --beta
-    '--tau':          [0.05, 0.005, 0.0005],
-    '--batch_size':   [100, 200, 300],
-    '--layer12_size': [[400, 300]] # Divides into --layer1_size, --layer2_size
+    '--tau':            [0.05, 0.005, 0.0005],
+    '--update_act_int': [2],
+    '--batch_size':     [100, 200, 300],
+    '--layer12_size':   [[400, 300]], # Divides into --layer1_size, --layer2_size
+    '--n_games':        [10000],
+    '--patience':       [1000],
+    '--TB_note':        ['""'],
 }
 
 # %%

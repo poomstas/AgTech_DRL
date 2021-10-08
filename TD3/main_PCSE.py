@@ -64,12 +64,15 @@ def train_TD3(args, writer):
     train_begin_time = time.time()
 
     env = gym.make('PCSE-v0')
+
+    TB_name = writer.log_dir.split('/')[-1]
+
     agent = Agent(alpha=args.alpha, beta=args.beta, input_dims=env.observation_space.shape,
-                    tau=args.tau, env=env, update_actor_interval=args.update_act_int,
+                    tau=args.tau, env=env, TB_name=TB_name, update_actor_interval=args.update_act_int,
                     batch_size=args.batch_size, layer1_size=args.layer1_size, 
                     layer2_size=args.layer2_size, n_actions=env.action_space.shape[0])
 
-    best_score = env.reward_range[0]
+    best_reward = env.reward_range[0]
     reward_history = []
     mean_reward_history = []
     
@@ -87,19 +90,19 @@ def train_TD3(args, writer):
 
         reward_history.append(reward_sum)
         writer.add_scalar('Reward', reward_sum, i)
-        avg_score = np.mean(reward_history[-100:])
-        mean_reward_history.append(avg_score)
-        writer.add_scalar('last_100_score_avg', avg_score, i)
+        avg_reward_100 = np.mean(reward_history[-100:])
+        mean_reward_history.append(avg_reward_100)
+        writer.add_scalar('last_100_reward_avg', avg_reward_100, i)
 
-        if avg_score > best_score:
-            best_score = avg_score
+        if avg_reward_100 > best_reward:
+            best_reward = avg_reward_100
             agent.save_models()
         
-        writer.add_scalar('best_score_so_far', best_score, i)
+        writer.add_scalar('best_reward_so_far', best_reward, i)
 
         if i % 1 == 0:
-            print('Episode: {:<6s}\tScore: {:<10s}\tLast 100 Episode Avg.: {:<15s}\tTrain Time: {:.1f} sec'.format(
-                str(i), str(np.round(reward_sum, 2)), str(np.round(avg_score, 2)), time.time()-train_begin_time))
+            print('Episode: {:<6s}\tReward: {:<10s}\tLast 100 Episode Avg.: {:<15s}\tTrain Time: {:.1f} sec'.format(
+                str(i), str(np.round(reward_sum, 2)), str(np.round(avg_reward_100, 2)), time.time()-train_begin_time))
 
         if has_plateaued(mean_reward_history, patience=args.patience):
             print("\nReached Plateau; Terminating Simulations.\n")

@@ -41,7 +41,7 @@ class ReplayBuffer:
 
 # %%
 class CriticNetwork(nn.Module):
-    def __init__(self, beta, input_dims, fc1_dims, fc2_dims, n_actions, name, chkpt_dir='./TD3_checkpoints'):
+    def __init__(self, beta, input_dims, fc1_dims, fc2_dims, n_actions, name, TB_name, chkpt_dir='./TB'):
         super(CriticNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -49,7 +49,7 @@ class CriticNetwork(nn.Module):
         self.n_actions = n_actions
         self.name = name
         self.checkpoint_dir = chkpt_dir
-        self.checkpoint_file = os.path.join(self.checkpoint_dir, name+'_Critic_TD3')
+        self.checkpoint_file = os.path.join(self.checkpoint_dir, TB_name+'_'+name)
 
         self.fc1 = nn.Linear(self.input_dims[0] + n_actions, self.fc1_dims)
         self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
@@ -80,7 +80,7 @@ class CriticNetwork(nn.Module):
 
 # %%
 class ActorNetwork(nn.Module):
-    def __init__(self, alpha, input_dims, fc1_dims, fc2_dims, n_actions, name, chkpt_dir='./TD3_checkpoints'):
+    def __init__(self, alpha, input_dims, fc1_dims, fc2_dims, n_actions, name, TB_name, chkpt_dir='./TB'):
         super(ActorNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -88,7 +88,7 @@ class ActorNetwork(nn.Module):
         self.n_actions = n_actions
         self.name = name
         self.checkpoint_dir = chkpt_dir
-        self.checkpoint_file = os.path.join(self.checkpoint_dir, name+'_Actor_TD3')
+        self.checkpoint_file = os.path.join(self.checkpoint_dir, TB_name+'_'+name)
 
         self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims)
         self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
@@ -119,7 +119,7 @@ class ActorNetwork(nn.Module):
 
 # %%
 class Agent:
-    def __init__(self, alpha, beta, input_dims, tau, env, gamma=0.99, update_actor_interval=2, warmup=300,
+    def __init__(self, alpha, beta, input_dims, tau, env, TB_name, gamma=0.99, update_actor_interval=2, warmup=300,
                  n_actions=2, max_size=10000000, layer1_size=400, layer2_size=300, batch_size=100, noise=0.1):
         self.gamma = gamma
         self.tau = tau
@@ -133,16 +133,16 @@ class Agent:
         self.update_actor_iter = update_actor_interval
         self.noise = noise
 
-        self.actor = ActorNetwork(alpha, input_dims, layer1_size, layer2_size, n_actions=n_actions, name='actor')
-        self.critic_1 = CriticNetwork(beta, input_dims, layer1_size, layer2_size, n_actions=n_actions, name='critic_1')
-        self.critic_2 = CriticNetwork(beta, input_dims, layer1_size, layer2_size, n_actions=n_actions, name='critic_2')
+        self.actor = ActorNetwork(alpha, input_dims, layer1_size, layer2_size, n_actions=n_actions, name='Actor', TB_name=TB_name)
+        self.critic_1 = CriticNetwork(beta, input_dims, layer1_size, layer2_size, n_actions=n_actions, name='Critic1', TB_name=TB_name)
+        self.critic_2 = CriticNetwork(beta, input_dims, layer1_size, layer2_size, n_actions=n_actions, name='Critic2', TB_name=TB_name)
 
         self.target_actor = ActorNetwork(alpha, input_dims, layer1_size, layer2_size, 
-                                         n_actions=n_actions, name='target_actor')
+                                         n_actions=n_actions, name='TargetActor', TB_name=TB_name)
         self.target_critic_1 = CriticNetwork(beta, input_dims, layer1_size, layer2_size, 
-                                         n_actions=n_actions, name='target_critic_1')
+                                         n_actions=n_actions, name='TargetCritic1', TB_name=TB_name)
         self.target_critic_2 = CriticNetwork(beta, input_dims, layer1_size, layer2_size, 
-                                         n_actions=n_actions, name='target_critic_2')
+                                         n_actions=n_actions, name='TargetCritic2', TB_name=TB_name)
 
         self.memory = ReplayBuffer(max_size, input_dims, n_actions)
 
