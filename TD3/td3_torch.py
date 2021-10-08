@@ -41,7 +41,7 @@ class ReplayBuffer:
 
 # %%
 class CriticNetwork(nn.Module):
-    def __init__(self, beta, input_dims, fc1_dims, fc2_dims, n_actions, name, chkpt_dir='./td3_checkpoints'):
+    def __init__(self, beta, input_dims, fc1_dims, fc2_dims, n_actions, name, chkpt_dir='./TD3_checkpoints'):
         super(CriticNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -49,7 +49,7 @@ class CriticNetwork(nn.Module):
         self.n_actions = n_actions
         self.name = name
         self.checkpoint_dir = chkpt_dir
-        self.checkpoint_file = os.path.join(self.checkpoint_dir, name+'_Critic_td3')
+        self.checkpoint_file = os.path.join(self.checkpoint_dir, name+'_Critic_TD3')
 
         self.fc1 = nn.Linear(self.input_dims[0] + n_actions, self.fc1_dims)
         self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
@@ -80,7 +80,7 @@ class CriticNetwork(nn.Module):
 
 # %%
 class ActorNetwork(nn.Module):
-    def __init__(self, alpha, input_dims, fc1_dims, fc2_dims, n_actions, name, chkpt_dir='./td3_checkpoints'):
+    def __init__(self, alpha, input_dims, fc1_dims, fc2_dims, n_actions, name, chkpt_dir='./TD3_checkpoints'):
         super(ActorNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -88,7 +88,7 @@ class ActorNetwork(nn.Module):
         self.n_actions = n_actions
         self.name = name
         self.checkpoint_dir = chkpt_dir
-        self.checkpoint_file = os.path.join(self.checkpoint_dir, name+'_Actor_td3')
+        self.checkpoint_file = os.path.join(self.checkpoint_dir, name+'_Actor_TD3')
 
         self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims)
         self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
@@ -201,7 +201,7 @@ class Agent:
         self.critic_1.optimizer.zero_grad()
         self.critic_2.optimizer.zero_grad()
 
-        # Might not be the same as θi <- argmin_(θi) 1/N sum((y-Q_θi(s,a))^2) (from paper's pseudocode, p6)
+        # Might not be the same as θi <- argmin_(θi) 1/N sum((y-Q_θi(s,a))^2) (from paper's pseudocode, p6), but works well.
         q1_loss = F.mse_loss(target, q1)
         q2_loss = F.mse_loss(target, q2)
         critic_loss = q1_loss + q2_loss
