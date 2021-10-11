@@ -114,7 +114,6 @@ class ActorNetwork(nn.Module):
         return mu, sigma
     
     def sample_normal(self, state, reparameterize=True):
-        print(state)
         mu, sigma = self.forward(state)
         probabilities = Normal(mu, sigma)
 
