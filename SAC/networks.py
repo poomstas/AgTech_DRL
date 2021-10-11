@@ -102,13 +102,7 @@ class ActorNetwork(nn.Module):
         self.to(self.device)
     
     def forward(self, state):
-        print("="*80)
-        print(type(state))
-        print(state.shape)
-        print(state.dtype)
-        print("="*80)
-
-        prob = self.fc1(state)
+        prob = self.fc1(state.float())
         prob = F.relu(prob)
         prob = self.fc2(prob)
         prob = F.relu(prob)
