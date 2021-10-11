@@ -82,9 +82,7 @@ def train_td3(args, writer):
 
 # %%
 if __name__=='__main__':
-    parser = argparse.ArgumentParser(description='Hyperparameters for TD3') # Parse hyperparameter arguments from CLI
-    args = parse_arguments(parser) # Reference values like so: args.alpha 
-
+    args = parse_arguments(argparse.ArgumentParser(description='Hyperparameters for TD3'))
     writer_name = get_writer_name(args)
     writer = SummaryWriter(writer_name)
 

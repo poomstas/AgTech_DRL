@@ -23,7 +23,7 @@ def parse_arguments(parser):
     parser.add_argument('--layer1_size',    type=int,   default=400,    help='Layer 1 size (same for actor & critic)')
     parser.add_argument('--layer2_size',    type=int,   default=300,    help='Layer 2 size (same for actor & critic)')
     parser.add_argument('--n_games',        type=int,   default=10000,  help='Total number of episodes')
-    parser.add_argument('--patience',       type=int,   default=1000,   help='Patience for plateau checking')
+    parser.add_argument('--patience',       type=int,   default=500,    help='Patience for plateau checking')
     parser.add_argument('--TB_note',        type=str,   default="",     help='Note on TensorBoard')
 
     args = parser.parse_args()
