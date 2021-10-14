@@ -69,9 +69,8 @@ def train_SAC(args, writer):
     TB_name = writer.log_dir.split('/')[-1]
 
     agent = Agent(env=env, input_dims=env.observation_space.shape, n_actions=env.action_space.shape[0],
-                  alpha=args.alpha, beta=args.beta, tau=args.tau, batch_size=args.batch_size,
-                  layer1_size=args.layer1_size, layer2_size=args.layer2_size, reward_scale=args.reward_scale,
-                  TB_name=TB_name)
+                  TB_name=TB_name, alpha=args.alpha, beta=args.beta, tau=args.tau, batch_size=args.batch_size,
+                  layer1_size=args.layer1_size, layer2_size=args.layer2_size, reward_scale=args.reward_scale)
 
     best_reward = env.reward_range[0]
     reward_history = []
