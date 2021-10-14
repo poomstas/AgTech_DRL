@@ -1,3 +1,4 @@
+# %%
 import os
 import torch as T
 import torch.nn.functional as F
@@ -6,6 +7,7 @@ import torch.optim as optim
 from torch.distributions.normal import Normal
 import numpy as np
 
+# %%
 class CriticNetwork(nn.Module):
     def __init__(self, beta, input_dims, n_actions, 
                  fc1_dims=256, fc2_dims=256, name='critic', chkpt_dir='tmp/sac'):
@@ -43,6 +45,7 @@ class CriticNetwork(nn.Module):
     def load_checkpoint(self):
         self.load_state_dict(T.load(self.checkpoint_file))
 
+# %%
 class ValueNetwork(nn.Module):
     def __init__(self, beta, input_dims, fc1_dims=256, fc2_dims=256, name='value', chkpt_dir='tmp/sac'):
         super(ValueNetwork, self).__init__()
@@ -77,6 +80,7 @@ class ValueNetwork(nn.Module):
     def load_checkpoint(self):
         self.load_state_dict(T.load(self.checkpoint_file))
 
+# %%
 class ActorNetwork(nn.Module):
     def __init__(self, alpha, input_dims, max_action, 
                  fc1_dims=256, fc2_dims=256, n_actions=2, name='actor', chkpt_dir='tmp/sac'):
