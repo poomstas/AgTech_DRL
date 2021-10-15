@@ -22,7 +22,7 @@ PARAMETERS = {
     '--layer12_size':   [[256, 256]], # Divides into --layer1_size, --layer2_size
     '--n_games':        [10000],
     '--patience':       [500],
-    '--TB_note':        ['"Run commands auto-generated 20211015"'],
+    '--TB_note':        ['"Run commands auto-generated 20211015"']
 }
 
 # %%
