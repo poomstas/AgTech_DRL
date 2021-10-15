@@ -48,6 +48,19 @@ def get_writer_name(args):
     return writer_name
 
 # %%
+def add_hparams_to_writer(writer, args, best_reward):
+    parameter_dict = {}
+    for hyperparameter in dir(args):
+        if hyperparameter != 'TB_note' and not hyperparameter.startswith('_'): 
+            parameter_dict[hyperparameter] = getattr(args, hyperparameter)
+
+    metric_dict = {'best_reward':best_reward}
+    writer.add_hparams(parameter_dict, metric_dict)
+    writer.add_scalar('best_reward', best_reward, 0) # To include it in the same group. Bug in PyTorch + TensorBoard; see: https://stackoverflow.com/questions/63830848/hparams-in-tensorboard-run-ids-and-naming
+
+    return writer
+
+# %%
 def has_plateaued(reward_history, patience=100):
     ''' Simple function that checks for plateau. '''
     single_patience_mean = np.mean(reward_history[-patience:])
@@ -109,12 +122,14 @@ def train_SAC(args, writer):
             print("Writer: {}".format(writer.log_dir))
             break
 
+    return writer, best_reward
+    
 # %%
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Hyperparameters for SAC') # Parse hyperparameter arguments from CLI
     args = parse_arguments(parser) # Reference values like so: args.alpha 
 
-    writer_name = get_writer_name(args)
-    writer = SummaryWriter(writer_name)
+    writer = SummaryWriter(get_writer_name(args))
+    writer, best_reward = train_SAC(args, writer)
+    writer = add_hparams_to_writer(writer, args, best_reward)
 
-    train_SAC(args, writer)
