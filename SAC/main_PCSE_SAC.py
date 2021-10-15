@@ -107,8 +107,8 @@ def train_SAC(args, writer):
         mean_reward_history.append(avg_reward_100)
         writer.add_scalar('last_100_reward_avg', avg_reward_100, i)
 
-        if reward > best_reward:
-            best_reward = reward
+        if reward_sum > best_reward:
+            best_reward = reward_sum
             agent.save_models()
         
         writer.add_scalar('best_reward_so_far', best_reward, i)
