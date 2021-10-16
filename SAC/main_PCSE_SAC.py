@@ -48,13 +48,13 @@ def get_writer_name(args):
     return writer_name
 
 # %%
-def add_hparams_to_writer(writer, args, best_reward):
+def add_hparams_to_writer(writer, args, best_reward, last_100_avg_reward):
     parameter_dict = {}
     for hyperparameter in dir(args):
         if hyperparameter != 'TB_note' and not hyperparameter.startswith('_'): 
             parameter_dict[hyperparameter] = getattr(args, hyperparameter)
 
-    metric_dict = {'best_reward':best_reward}
+    metric_dict = {'best_reward':best_reward, 'last_100_avg_reward':last_100_avg_reward}
     writer.add_hparams(parameter_dict, metric_dict)
     writer.add_scalar('best_reward', best_reward, 0) # To include it in the same group. Bug in PyTorch + TensorBoard; see: https://stackoverflow.com/questions/63830848/hparams-in-tensorboard-run-ids-and-naming
 
@@ -122,7 +122,7 @@ def train_SAC(args, writer):
             print("Writer: {}".format(writer.log_dir))
             break
 
-    return writer, best_reward
+    return writer, best_reward, avg_reward_100
     
 # %%
 if __name__=='__main__':
@@ -130,6 +130,6 @@ if __name__=='__main__':
     args = parse_arguments(parser) # Reference values like so: args.alpha 
 
     writer = SummaryWriter(get_writer_name(args))
-    writer, best_reward = train_SAC(args, writer)
-    writer = add_hparams_to_writer(writer, args, best_reward)
+    writer, best_reward, last_100_avg_reward = train_SAC(args, writer)
+    writer = add_hparams_to_writer(writer, args, best_reward, last_100_avg_reward)
 
