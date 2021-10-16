@@ -1,5 +1,6 @@
 # %%
 import os
+import sys
 import itertools
 
 # %% Input Specs
@@ -7,8 +8,9 @@ OUTPUT_FILENAME = 'SAC_Commands.txt'
 PYTHON_FILENAME = 'main_PCSE_SAC.py'
 
 # Used for Estimating Time Durations
-TIME_PER_RUN = 180 # minutes
+TIME_PER_RUN = 5000//60 # minutes
 NO_OF_PROCESSES = 4 # simultaneous processes
+N_REPEAT = 1 # Number of repeat runs of the same command
 
 PARAMETERS = {
     '--alphabeta': [
@@ -45,14 +47,17 @@ keys = tuple(PARAMETERS.keys())
 combos = list(itertools.product(*PARAMETERS.values()))
 
 print("Total Number of Combinations: ", len(combos))
-print("Estimated Run Time: {} hours".format(len(combos) * TIME_PER_RUN / 60 / NO_OF_PROCESSES))
+print("Number of Repeats per Command: ", N_REPEAT)
+print("Estimated Run Time: {:.2f} hours".format(len(combos) * TIME_PER_RUN * N_REPEAT / 60 / NO_OF_PROCESSES))
 
 # %% Write to file
 if os.path.isfile(OUTPUT_FILENAME):
-    print("File already exists! Overwriting...")
+    print("File already exists! Exiting...")
+    sys.exit()
 
 with open(OUTPUT_FILENAME, 'w') as f:
     for item in combos:
         line = 'python ' + PYTHON_FILENAME + ' ' + print_command(keys, item)
         print(line)
-        f.write(line +'\n')
+        for _ in range(N_REPEAT):
+            f.write(line +'\n')
