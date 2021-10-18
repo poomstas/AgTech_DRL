@@ -10,7 +10,7 @@ import numpy as np
 # %%
 class CriticNetwork(nn.Module):
     def __init__(self, beta, input_dims, n_actions, TB_name, 
-                 fc1_dims=256, fc2_dims=256, name='critic', chkpt_dir='./TB/'):
+                 fc1_dims=256, fc2_dims=256, name='critic', chkpt_dir='./TB/', cuda_index=0):
         super(CriticNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -24,7 +24,7 @@ class CriticNetwork(nn.Module):
         self.q = nn.Linear(self.fc2_dims, 1)
 
         self.optimizer = optim.Adam(self.parameters(), lr=beta)
-        self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
+        self.device = T.device('cuda:{}'.format(str(cuda_index)) if T.cuda.is_available() else 'cpu')
 
         self.to(self.device)
 
@@ -46,7 +46,7 @@ class CriticNetwork(nn.Module):
 
 # %%
 class ValueNetwork(nn.Module):
-    def __init__(self, beta, input_dims, TB_name, fc1_dims=256, fc2_dims=256, name='value', chkpt_dir='./TB/'):
+    def __init__(self, beta, input_dims, TB_name, fc1_dims=256, fc2_dims=256, name='value', chkpt_dir='./TB/', cuda_index=0):
         super(ValueNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -59,7 +59,7 @@ class ValueNetwork(nn.Module):
         self.v = nn.Linear(self.fc2_dims, 1)
 
         self.optimizer = optim.Adam(self.parameters(), lr=beta)
-        self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
+        self.device = T.device('cuda:{}'.format(str(cuda_index)) if T.cuda.is_available() else 'cpu')
 
         self.to(self.device)
     
@@ -81,7 +81,7 @@ class ValueNetwork(nn.Module):
 # %%
 class ActorNetwork(nn.Module):
     def __init__(self, alpha, input_dims, max_action, TB_name,
-                 fc1_dims=256, fc2_dims=256, n_actions=2, name='actor', chkpt_dir='./TB/'):
+                 fc1_dims=256, fc2_dims=256, n_actions=2, name='actor', chkpt_dir='./TB/', cuda_index=0):
         super(ActorNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -98,7 +98,7 @@ class ActorNetwork(nn.Module):
         self.sigma = nn.Linear(self.fc2_dims, self.n_actions)
 
         self.optimizer = optim.Adam(self.parameters(), lr=alpha)
-        self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
+        self.device = T.device('cuda:{}'.format(str(cuda_index)) if T.cuda.is_available() else 'cpu')
 
         self.to(self.device)
     

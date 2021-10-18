@@ -24,6 +24,7 @@ def parse_arguments(parser):
     parser.add_argument('--layer2_size',    type=int,   default=256,    help='Layer 2 size (same for actor & critic)')
     parser.add_argument('--n_games',        type=int,   default=10000,  help='Total number of episodes')
     parser.add_argument('--patience',       type=int,   default=500,    help='Patience for plateau checking')
+    parser.add_argument('--cuda_index',     type=int,   default=0,      help='GPU Index, default at 0')
     parser.add_argument('--TB_note',        type=str,   default="",     help='Note on TensorBoard')
 
     args = parser.parse_args()
@@ -83,7 +84,7 @@ def train_SAC(args, writer):
 
     agent = Agent(env=env, input_dims=env.observation_space.shape, n_actions=env.action_space.shape[0],
                   TB_name=TB_name, alpha=args.alpha, beta=args.beta, tau=args.tau, batch_size=args.batch_size,
-                  layer1_size=args.layer1_size, layer2_size=args.layer2_size, reward_scale=args.reward_scale)
+                  layer1_size=args.layer1_size, layer2_size=args.layer2_size, reward_scale=args.reward_scale, cuda_index=args.cuda_index)
 
     best_reward = env.reward_range[0]
     reward_history = []
@@ -113,7 +114,7 @@ def train_SAC(args, writer):
         
         writer.add_scalar('best_reward_so_far', best_reward, i)
 
-        if i % 1 == 0:
+        if i % 20 == 0:
             print('Episode: {:<6s}\tReward: {:<10s}\tLast 100 Episode Avg.: {:<15s}\tTrain Time: {:.1f} sec'.format(
                 str(i), str(np.round(reward_sum, 2)), str(np.round(avg_reward_100, 2)), time.time()-train_begin_time))
 

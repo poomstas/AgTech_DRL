@@ -8,7 +8,7 @@ from networks import ActorNetwork, CriticNetwork, ValueNetwork
 class Agent:
     def __init__(self, env, input_dims, n_actions, TB_name, alpha=0.0003, beta=0.0003,
                  gamma=0.99, max_size=1000000, tau=0.005, batch_size=256,
-                 layer1_size=256, layer2_size=256, reward_scale=2):
+                 layer1_size=256, layer2_size=256, reward_scale=2, cuda_index=0):
         self.gamma = gamma
         self.tau = tau
         self.memory = ReplayBuffer(max_size, input_dims, n_actions)
@@ -17,13 +17,13 @@ class Agent:
 
         self.actor = ActorNetwork(alpha, input_dims, n_actions=n_actions, TB_name=TB_name,
                         name='actor', max_action=env.action_space.high, 
-                        fc1_dims=layer1_size, fc2_dims=layer2_size)
+                        fc1_dims=layer1_size, fc2_dims=layer2_size, cuda_index=cuda_index)
         self.critic_1 = CriticNetwork(beta, input_dims, n_actions=n_actions, TB_name=TB_name,
-                        name='critic_1', fc1_dims=layer1_size, fc2_dims=layer2_size)
+                        name='critic_1', fc1_dims=layer1_size, fc2_dims=layer2_size, cuda_index=cuda_index)
         self.critic_2 = CriticNetwork(beta, input_dims, n_actions=n_actions, TB_name=TB_name, 
-                        name='critic_2', fc1_dims=layer1_size, fc2_dims=layer2_size)
-        self.value = ValueNetwork(beta, input_dims, TB_name=TB_name, name='value')
-        self.target_value = ValueNetwork(beta, input_dims, TB_name=TB_name, name='target_value')
+                        name='critic_2', fc1_dims=layer1_size, fc2_dims=layer2_size, cuda_index=cuda_index)
+        self.value = ValueNetwork(beta, input_dims, TB_name=TB_name, name='value', cuda_index=cuda_index)
+        self.target_value = ValueNetwork(beta, input_dims, TB_name=TB_name, name='target_value', cuda_index=cuda_index)
 
         self.scale = reward_scale
         self.update_network_parameters(tau=1)

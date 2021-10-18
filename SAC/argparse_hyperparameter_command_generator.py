@@ -8,23 +8,22 @@ OUTPUT_FILENAME = 'SAC_Commands.txt'
 PYTHON_FILENAME = 'main_PCSE_SAC.py'
 
 # Used for Estimating Time Durations
-TIME_PER_RUN = 5000//60 # minutes
+TIME_PER_RUN = 10000//60 # minutes
 NO_OF_PROCESSES = 4 # simultaneous processes
-N_REPEAT = 1 # Number of repeat runs of the same command
+N_REPEAT = 2 # Number of repeat runs of the same command
 
 PARAMETERS = {
     '--alphabeta': [
-                        [0.01,    0.01],
                         [0.001,   0.001],
-                        [0.0001,  0.0001],
                     ], # Divides into --alpha, --beta
     '--tau':            [0.1, 0.01, 0.001, 0.0001],
-    '--reward_scale':   [1, 2, 3, 5, 50, 100],
+    '--reward_scale':   [1, 2, 3, 4, 5],
     '--batch_size':     [100],
     '--layer12_size':   [[256, 256]], # Divides into --layer1_size, --layer2_size
-    '--n_games':        [10000],
-    '--patience':       [500],
-    '--TB_note':        ['"Run commands auto-generated 20211015"']
+    '--n_games':        [50000],
+    '--patience':       [1000],
+    '--cuda_index':     [0], # Just one value for now. Assign different indices manually after .txt is generated. 
+    '--TB_note':        ['"Run commands auto-generated 20211016"']
 }
 
 # %%
@@ -56,8 +55,8 @@ if os.path.isfile(OUTPUT_FILENAME):
     sys.exit()
 
 with open(OUTPUT_FILENAME, 'w') as f:
-    for item in combos:
-        line = 'python ' + PYTHON_FILENAME + ' ' + print_command(keys, item)
-        print(line)
-        for _ in range(N_REPEAT):
+    for _ in range(N_REPEAT):
+        for item in combos:
+            line = 'python ' + PYTHON_FILENAME + ' ' + print_command(keys, item)
+            print(line)
             f.write(line +'\n')
