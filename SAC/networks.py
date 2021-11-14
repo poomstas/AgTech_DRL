@@ -41,8 +41,8 @@ class CriticNetwork(nn.Module):
     def save_checkpoint(self):
         T.save(self.state_dict(), self.checkpoint_file)
 
-    def load_checkpoint(self, model_fullpath):
-        self.load_state_dict(T.load(model_fullpath))
+    def load_checkpoint(self, model_fullpath, gpu_indx=0):
+        self.load_state_dict(T.load(model_fullpath, map_location='cuda:{}'.format(str(gpu_indx))))
 
 # %%
 class ValueNetwork(nn.Module):
@@ -75,8 +75,8 @@ class ValueNetwork(nn.Module):
     def save_checkpoint(self):
         T.save(self.state_dict(), self.checkpoint_file)
 
-    def load_checkpoint(self, model_fullpath):
-        self.load_state_dict(T.load(model_fullpath))
+    def load_checkpoint(self, model_fullpath, gpu_indx=0):
+        self.load_state_dict(T.load(model_fullpath, map_location='cuda:{}'.format(str(gpu_indx))))
 
 # %%
 class ActorNetwork(nn.Module):
@@ -133,5 +133,5 @@ class ActorNetwork(nn.Module):
     def save_checkpoint(self):
         T.save(self.state_dict(), self.checkpoint_file)
 
-    def load_checkpoint(self, model_fullpath):
-        self.load_state_dict(T.load(model_fullpath))
+    def load_checkpoint(self, model_fullpath, gpu_indx=0):
+        self.load_state_dict(T.load(model_fullpath, map_location='cuda:{}'.format(str(gpu_indx))))

@@ -61,18 +61,18 @@ class Agent:
         self.critic_1.save_checkpoint()
         self.critic_2.save_checkpoint()
     
-    def load_models(self, model_refname, model_path):
+    def load_models(self, model_refname, model_path, gpu_indx=0):
         fullpath_actor          = os.path.join(model_path, model_refname + '_actor')
         fullpath_critic_1       = os.path.join(model_path, model_refname + '_critic_1')
         fullpath_critic_2       = os.path.join(model_path, model_refname + '_critic_2')
         fullpath_value          = os.path.join(model_path, model_refname + '_value')
         fullpath_target_value   = os.path.join(model_path, model_refname + '_target_value')
 
-        self.actor.load_checkpoint(fullpath_actor)
-        self.critic_1.load_checkpoint(fullpath_critic_1)
-        self.critic_2.load_checkpoint(fullpath_critic_2)
-        self.value.load_checkpoint(fullpath_value)
-        self.target_value.load_checkpoint(fullpath_target_value)
+        self.actor.load_checkpoint(fullpath_actor, gpu_indx=gpu_indx)
+        self.critic_1.load_checkpoint(fullpath_critic_1, gpu_indx=gpu_indx)
+        self.critic_2.load_checkpoint(fullpath_critic_2, gpu_indx=gpu_indx)
+        self.value.load_checkpoint(fullpath_value, gpu_indx=gpu_indx)
+        self.target_value.load_checkpoint(fullpath_target_value, gpu_indx=gpu_indx)
     
     def learn(self):
         if self.memory.mem_counter < self.batch_size:
