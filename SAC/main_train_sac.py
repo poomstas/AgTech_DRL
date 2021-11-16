@@ -1,5 +1,4 @@
 # %%
-import os
 import time
 import spwk_agtech
 import gym
@@ -9,9 +8,6 @@ import argparse
 from datetime import datetime
 from sac_torch import Agent
 from torch.utils.tensorboard import SummaryWriter
-
-# %%
-assert os.environ['CONDA_DEFAULT_ENV'] == 'spacewalk', 'Switch to correct environment!'
 
 # %%
 def parse_arguments(parser):

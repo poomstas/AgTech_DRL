@@ -5,14 +5,10 @@ import spwk_agtech
 import gym
 import numpy as np
 import time
-import os
 import argparse
 from ddpg import Agent
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
-
-# %%
-assert os.environ['CONDA_DEFAULT_ENV'] == 'spacewalk', 'Switch to correct environment!'
 
 # %%
 def parse_arguments(parser):
@@ -144,4 +140,3 @@ if __name__=='__main__':
     writer = SummaryWriter(writer_name)
 
     ddpg_train(args, writer)
-    # ddpg_load_and_run()   # This needs to be fixed!
