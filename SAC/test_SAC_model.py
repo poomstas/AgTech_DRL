@@ -1,5 +1,4 @@
 # %%
-import os
 import spwk_agtech
 import gym
 import pickle
@@ -11,7 +10,8 @@ from sac_torch import Agent
 
 # %%
 MODEL_REFNAME = 'SAC_PCSE_alpha_0.001_beta_0.001_tau_0.01_RewScale_18_batchsize_100_layer1size_256_layer2size_256_nGames_50000_patience_1000_20211023_005715_Run commands auto-generated 20211016' 
-MODEL_PATH     = '/home/brian/Dropbox/SideProjects/20210915 Spacewalk Interview/AgTech/SAC/TB'
+MODEL_PATH     = './Final Model Weights/'
+N_TEST_CASE = 100 # Number of test episodes to run to calculate avg and max episode reward
 
 # %%
 env = gym.make('PCSE-v0')
@@ -26,7 +26,9 @@ agent = Agent(env=env, input_dims=env.observation_space.shape, n_actions=env.act
 profits = []
 best_reward = -float('inf')
 
-for i in tqdm(range(1000)):
+print('Running {} episodes and retrieving the results...'.format(str(N_TEST_CASE)))
+
+for i in tqdm(range(N_TEST_CASE)):
     agent.load_models(model_refname=MODEL_REFNAME, model_path=MODEL_PATH, gpu_indx=0)
 
     obs = env.reset()
