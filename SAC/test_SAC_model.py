@@ -9,8 +9,6 @@ import matplotlib.pyplot as plt
 
 from sac_torch import Agent
 
-assert os.environ['CONDA_DEFAULT_ENV'] == 'spacewalk', 'Switch to correct environment!'
-
 # %%
 MODEL_REFNAME = 'SAC_PCSE_alpha_0.001_beta_0.001_tau_0.01_RewScale_18_batchsize_100_layer1size_256_layer2size_256_nGames_50000_patience_1000_20211023_005715_Run commands auto-generated 20211016' 
 MODEL_PATH     = '/home/brian/Dropbox/SideProjects/20210915 Spacewalk Interview/AgTech/SAC/TB'
