@@ -28,12 +28,13 @@ TRA	|	Crop Transpiration Rate	|	0	|	2	|	cm/day	|
 RD	|	Rooting Depth	|	10	|	120	|	cm	|
 SM	|	Soil Moisture	|	0.3	|	0.57	|	cm<sup>3</sup>/cm<sup>3</sup>	|
 WWLOW	|	Total Amnt of Water in the Soil Profile	|	54.177	|	68.5	|	cm	|
-\
+
+
 **Table: Control Variables (Continuous)**
 
 Variable Name	|	Variable	|	Min	|	Max	|	Unit	|
 ---	|	---	|	---	|	---	|	---	|
-IRRAD	|	Incoming Global Radiation	|	0	|	40000000	|	J/m<sup>2</sup>/day	|
+IRRAD	|	Incoming Global Radiation	|	0	|	4.0 × 10<sup>7</sup>	|	J/m<sup>2</sup>/day	|
 TMIN	|	Daily Min Temp	|	-50	|	60	|	Celsius	|
 TMAX	|	Daily Max Temp	|	-50	|	60	|	Celsius	|
 VAP	|	Daily Mean Vapor Pressure	|	0.06 × 10<sup>-5</sup>	|	199.3 × 10<sup>-4</sup>	|	hPa	|
@@ -99,7 +100,9 @@ Average Total Episodic Reward ($/ha) |	Max Total Episodic Reward ($/ha)|
 \
 \
 **Figure: Distribution of Total Episodic Rewards Retrieved from 1,000 Episodes**
+![Figure]('http://github.com/poomstas/AgTech_DRL/README_Figures/A.png')
 
+![Figure]('./README_Figures/A.png')
 
 # Running the Scripts
 ## Create a Conda Environment
