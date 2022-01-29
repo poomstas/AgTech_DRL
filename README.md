@@ -100,9 +100,9 @@ Average Total Episodic Reward ($/ha) |	Max Total Episodic Reward ($/ha)|
 \
 \
 **Figure: Distribution of Total Episodic Rewards Retrieved from 1,000 Episodes**
-![Figure]('http://github.com/poomstas/AgTech_DRL/README_Figures/A.png')
+![Figure]('https://github.com/poomstas/AgTech_DRL/blob/main/README_Figures/A.png')
 
-![Figure]('./README_Figures/A.png')
+![Figure]('.blob/main/README_Figures/A.png')
 
 # Running the Scripts
 ## Create a Conda Environment
