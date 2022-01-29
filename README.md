@@ -102,6 +102,8 @@ Average Total Episodic Reward ($/ha) |	Max Total Episodic Reward ($/ha)|
 
 ![Figure]('https://github.com/poomstas/AgTech_DRL/blob/main/README_Figures/A.png')
 
+![Figure]('https://github.com/poomstas/AgTech_DRL/README_Figures/A.png')
+
 ![Figure]('.blob/main/README_Figures/A.png')
 
 # Running the Scripts
