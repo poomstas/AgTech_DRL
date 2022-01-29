@@ -97,9 +97,9 @@ Because the SAC algorithm is inherently stochastic, it gives different results e
 Average Total Episodic Reward ($/ha) |	Max Total Episodic Reward ($/ha)|
 ---	|	---	|
 2250.47	|	2802.47	|
-\
-\
+
 **Figure: Distribution of Total Episodic Rewards Retrieved from 1,000 Episodes**
+
 ![Figure]('https://github.com/poomstas/AgTech_DRL/blob/main/README_Figures/A.png')
 
 ![Figure]('.blob/main/README_Figures/A.png')
