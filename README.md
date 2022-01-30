@@ -116,6 +116,8 @@ Average Total Episodic Reward ($/ha) |	Max Total Episodic Reward ($/ha)|
 
 ![Dali]('https://i0.wp.com/rayhaber.com/wp-content/uploads/2021/01/salvador-dali-kimdir.jpg)
 
+[Dali]('https://i0.wp.com/rayhaber.com/wp-content/uploads/2021/01/salvador-dali-kimdir.jpg)
+
 # Running the Scripts
 ## Create a Conda Environment
 ```
