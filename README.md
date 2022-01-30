@@ -1,4 +1,4 @@
-# Applying Deep Reinforcement Learning to Agricultural Tech
+# Deep Reinforcement Learning + Agricultural Tech
 ## Problem Statement and Overview
 
 The objective of this project is to maximize the the expected crop yield by optimizing over 13 continuous control (action) variables. The expected crop yield is determined using the PCSE-v0 crop simulator provided in https://github.com/poomstas/spwk-agtech-task.git.
@@ -142,7 +142,7 @@ The gradient values are then used to update the Q-function and the policy. Here,
 The overview of the DDPG algorithm in the form of pseudocode is provided below.
 
 <p align="center">
-  <img src="/README_Figures/B.png" width="800" title="DDPG Algorithm Pseudocode">
+  <img src="/README_Figures/B.png" width="600" title="DDPG Algorithm Pseudocode">
 </p>
 
 ## Implementation & Results
@@ -197,7 +197,7 @@ Using the above modifications have effectively addressed the value overestimatio
 
 <p align="center">
   <img src="/README_Figures/E.png" width="800" title="Table">
-  <img src="/README_Figures/F.png" width="800" title="TD3 Algorithm Pseudocode">
+  <img src="/README_Figures/F.png" width="600" title="TD3 Algorithm Pseudocode">
 </p>
 
 
@@ -257,7 +257,7 @@ Other notable features of SAC is that it 1) takes on an actor-critic structure w
 The SAC algorithm’s pseudocode is provided below for reference.
 
 <p align="center">
-  <img src="/README_Figures/K.png" width="800" title="SAC Algorithm Pseudocode">
+  <img src="/README_Figures/K.png" width="600" title="SAC Algorithm Pseudocode">
 </p>
 
 ## Implementation & Results
@@ -290,13 +290,13 @@ The above instance is selected as the final result for this project.
 Below is a graph that helps visualize the key hyperparameters’ influence on one of the key metrics, `best_reward`. SAC has two core hyperparameters that need to be carefully tuned: tau, which determines the rate at which the target networks (both actor and critic) are updated, and reward scale, which acts as the temperature of the energy-based optimal policy, and thus determines the extent of stochasticity of SAC.
 
 <p align="center">
-  <img src="/README_Figures/O.png" width="800" title="Hyperparameter Results">
+  <img src="/README_Figures/O.png" width="600" title="Hyperparameter Results">
 </p>
 
 The figure above is color-coded according to the highest reward observed during training. We can visually filter out the best-performing cases to see if a pattern exists among tau and reward scale values, as below.
 
 <p align="center">
-  <img src="/README_Figures/P.png" width="800" title="Hyperparameter Results">
+  <img src="/README_Figures/P.png" width="600" title="Hyperparameter Results">
 </p>
 
 It seems that the optimal reward scale value is approximately 13 to 19, while the tau value varies over a wider range. Taking the hyperparameter set that had the highest single-episode total reward (profit) value, we have below:
@@ -328,8 +328,8 @@ Max Timesteps Per Episode	|	50,000	|
 # Running the Scripts
 ## Create a Conda Environment
 ```
-conda create --name spacewalk_test python=3.8
-conda activate spacewalk_test
+conda create --name AgTech_DRL python=3.8
+conda activate AgTech_DRL
 pip install git+https://github.com/poomstas/spwk-agtech-task.git
 python -m spwk_agtech.make_weather_cache
 conda install pytorch==1.8.0 cudatoolkit=11.1 -c pytorch -c conda-forge
