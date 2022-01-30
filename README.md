@@ -102,7 +102,9 @@ Average Total Episodic Reward ($/ha) |	Max Total Episodic Reward ($/ha)|
 
 ![Figure]('https://github.com/poomstas/AgTech_DRL/blob/main/README_Figures/A.png')
 
-![Fig]('https://github.com/poomstas/AgTech_DRL/blob/main/README_Figures/A.png?raw=true')
+![Fig]('main/README_Figures/A.png?raw=true')
+
+![Fig]('main/README_Figures/A.png')
 
 ![Fig1](https://github.com/poomstas/AgTech_DRL/main/README_Figures/A.png?raw=true)
 
@@ -114,9 +116,6 @@ Average Total Episodic Reward ($/ha) |	Max Total Episodic Reward ($/ha)|
 
 ![Figure]('.blob/main/README_Figures/A.png')
 
-![Dali]('https://i0.wp.com/rayhaber.com/wp-content/uploads/2021/01/salvador-dali-kimdir.jpg)
-
-[Dali]('https://i0.wp.com/rayhaber.com/wp-content/uploads/2021/01/salvador-dali-kimdir.jpg)
 
 # Running the Scripts
 ## Create a Conda Environment
