@@ -99,30 +99,10 @@ Average Total Episodic Reward ($/ha) |	Max Total Episodic Reward ($/ha)|
 2250.47	|	2802.47	|
 
 **Figure: Distribution of Total Episodic Rewards Retrieved from 1,000 Episodes**
-
-![Figure]('https://github.com/poomstas/AgTech_DRL/blob/main/README_Figures/A.png')
-
-![Fig]('main/README_Figures/A.png?raw=true')
-
-![Fig]('main/README_Figures/A.png')
-
-![Fig1](https://github.com/poomstas/AgTech_DRL/main/README_Figures/A.png?raw=true)
-
-![Fig2]('https://github.com/poomstas/AgTech_DRL/blob/main/README_Figures/A.png?raw=true')
-
-![Fig3]('README_Figures/A.png?raw=true')
-
-![Fig4]('README_Figures/A.png')
-
-![Figure]('.blob/main/README_Figures/A.png')
-
 <p align="center">
-  <img src="main/README_Figures/A.png" width="350" title="hover text">
-  <img src="main/README_Figures/A.png?raw=true" width="350" title="hover text">
-  <img src="https://github.com/poomstas/AgTech_DRL/blob/main/README_Figures/A.png" width="350" title="hover text">
-  <!-- <img src="your_relative_path_here_number_2_large_name" width="350" alt="accessibility text"> -->
+  <img src="https://github.com/poomstas/AgTech_DRL/blob/main/README_Figures/A.png" width="450" title="SAC Final Model Performance">
+  <img src="/README_Figures/B.png" width="450" title="SAC Final Model Performance">
 </p>
-
 
 
 # Running the Scripts
