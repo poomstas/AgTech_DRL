@@ -116,6 +116,14 @@ Average Total Episodic Reward ($/ha) |	Max Total Episodic Reward ($/ha)|
 
 ![Figure]('.blob/main/README_Figures/A.png')
 
+<p align="center">
+  <img src="main/README_Figures/A.png" width="350" title="hover text">
+  <img src="main/README_Figures/A.png?raw=true" width="350" title="hover text">
+  <img src="https://github.com/poomstas/AgTech_DRL/blob/main/README_Figures/A.png" width="350" title="hover text">
+  <!-- <img src="your_relative_path_here_number_2_large_name" width="350" alt="accessibility text"> -->
+</p>
+
+
 
 # Running the Scripts
 ## Create a Conda Environment
