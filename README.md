@@ -100,10 +100,49 @@ Average Total Episodic Reward ($/ha) |	Max Total Episodic Reward ($/ha)|
 
 **Figure: Distribution of Total Episodic Rewards Retrieved from 1,000 Episodes**
 <p align="center">
-  <img src="https://github.com/poomstas/AgTech_DRL/blob/main/README_Figures/A.png" width="450" title="SAC Final Model Performance">
-  <img src="/README_Figures/B.png" width="450" title="SAC Final Model Performance">
+  <img src="/README_Figures/A.png" width="450" title="SAC Final Model Performance">
 </p>
 
+The hyperparameters used to train the SAC model is summarized in the table below:
+
+**Table: Hyperparameters Used to Train the Final Selected Model (SAC)**
+
+Hyperparameter	|	Value	|
+---	|	---	|
+Optimizer	|	Adam	|
+alpha (learning rate for actor)	|	0.001	|
+beta (learning rate for critic)	|	0.001	|
+Discount Factor	|	0.99	|
+tau	|	0.01	|
+Reward Scale	|	18	|
+Batch Size	|	100	|
+Replay Buffer Size	|	106	|
+Layer 1 Size	|	256	|
+Layer 2 Size	|	256	|
+Max Timesteps Per Episode	|	50,000	|
+
+The subsequent sections details the attempts in the order they were made.
+
+# Trial #1: Deep Deterministic Policy Gradient (DDPG)
+## Algorithm
+
+The first algorithm used was Deep Deterministic Policy Gradient (DDPG). DDPG is a deep reinforcement learning technique that draws from both Q-learning and policy gradients. One of the motives for creating DDPG was that Deep Q-Network (DQN) could only handle cases where the action spaces were discrete and low-dimensional. This was the primary basis for selecting DDPG as my first attempt to solve the problem, which involves a continuous action variable.
+
+DDPG learns a Q-function and a policy simultaneously, and uses off-policy data and the Bellman equation to modify the Q-function. It then uses the Q-function to update the policy (Lillicrap et al., 2016). Simply put, DDPG is an approach that attempts to solve one of the major limitations of DQN (i.e. the requirement that the action space is discrete and low-dimensional). DDPG simultaneously draws from the successes of DQN by implementing two of its ideas: the replay buffer and the target network.
+
+DDPG overcomes the above limitation by taking advantage of the fact that when the action space is continuous, the (optimal) action-value function is differentiable with respect to the action variable. Using this, a gradient-based learning rule for a policy can be constructed, as below.
+
+<p align="center">
+  <img src="/README_Figures/AB.png" width="800" title="DDPG Main Equation">
+</p>
+
+The gradient values are then used to update the Q-function and the policy. Here, soft-updating is used to ensure that the updating procedure retains some stability.
+
+The overview of the DDPG algorithm in the form of pseudocode is provided below.
+
+<p align="center">
+  <img src="/README_Figures/B.png" width="800" title="DDPG Main Equation">
+</p>
 
 # Running the Scripts
 ## Create a Conda Environment
