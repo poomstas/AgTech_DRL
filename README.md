@@ -1,7 +1,7 @@
 # Deep Reinforcement Learning + Agricultural Tech
 ## Problem Statement and Overview
 
-The objective of this project is to maximize the the expected crop yield by optimizing over 13 continuous control (action) variables. The expected crop yield is determined using the PCSE-v0 crop simulator provided in https://github.com/poomstas/spwk-agtech-task.git.
+The objective of this project is to maximize the the expected crop yield by optimizing over 13 continuous control (action) variables. The expected crop yield is determined using the `PCSE-v0` crop simulator provided in https://github.com/poomstas/spwk-agtech-task.git.
 
 The 
 
@@ -51,7 +51,10 @@ K	|	Amnt of K fertilizer in kg/ha applied on this day	|	0	|	100	|	kg/ha	|
 
 In the given gym environment, the above action variables are scaled from -1 to 1 using the minimum and maximum values for computational convenience.
 
-As outlined in the GitHub problem description page, the ultimate objective of the task is to create an agent that 1) maximizes the net profit, 2) maintains high training stability, and 3) achieves fast convergence.
+As outlined in the GitHub problem description page, the ultimate objective of the task is to create an agent that 
+1. maximizes the net profit, 
+2. maintains high training stability, and 
+3. achieves fast convergence.
 
 The report continues with the Executive Summary section whereI make the final recommendation. Then the three attempts are summarized in the order they were conducted, followed by the Conclusion and Future Works sections at the end.
 
@@ -117,7 +120,7 @@ Discount Factor	|	0.99	|
 tau	|	0.01	|
 Reward Scale	|	18	|
 Batch Size	|	100	|
-Replay Buffer Size	|	106	|
+Replay Buffer Size	|	10<sup>6</sup>	|
 Layer 1 Size	|	256	|
 Layer 2 Size	|	256	|
 Max Timesteps Per Episode	|	50,000	|
@@ -322,6 +325,25 @@ Max Timesteps Per Episode	|	50,000	|
 <p align="center">
   <img src="/README_Figures/Q.png" width="800" title="Env Render of Best-Performing Actions (Profit: $2802.47/ha)">
 </p>
+
+The above results can be reproduced by running the `check_best_performing_action.py` script. 
+
+# Conclusion
+In this work, I was find the set of control variables for the PCSE crop simulation that maximizes the net profit. Three algorithms (DDPG, TD3, and SAC) were employed to solve the problem, and the results were compared to determine which approach yields the best results. Among the three, the SAC gave the most profitable result, with `$2802/ha`, and is selected as the final recommendation. SAC algorithm’s use of stochastic policies, off-policy formulation, replay buffer, and entropy regularization have allowed a stable and sample-efficient training, which resulted in the best final result.
+
+
+# Future Works
+- In the above work, more time was spent trying out hyperparameter sets for SAC than DDPG and TD3. Although the SAC is known to be more efficient (Haarnoja et al., 2018), DDPG and TD3 may yield better results (compared to what was observed) with the right hyperparameters, and may be worth an investigation. 
+- There are a number of notable developments since SAC, such as transformer-based models. It should be interesting to learn more about the newly developed models and compare their performances against the ones studied in this work.
+- Use a more advanced method for hyperparameter search in the place of grid-based approach. Potential candidates are: latin hypercube sampling, Bayesian optimization, infinite-armed bandit-based approach, etc.
+- Because one of the objectives is to find the set of actions that yield the best reward, it may be helpful to keep track of the best reward and save the corresponding action set while the training is proceeding. In a few cases I seem to have lost some high-performing models ($2800+/ha) due to the absence of a timely saving feature.
+
+# References
+- Haarnoja T., Zhou, A., Abbeel P., & Levine S. (2018) Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor.
+- Duan, Y., Chen, X., Houthooft, R., Schulman, J., and Abbeel, P. (2016) Benchmarking deep reinforcement learning for continuous control. In *International Conference on Machine Learning (ICML)*
+- Henderson, P., Islam, R., Bachman, R., Pineau, J., Precup, D., and Meger, D. (2017) Deep reinforcement learning that matters.
+- Fujimoto, S., van Hoof, H., Meger, D. (2018) Addressing Function Approximation Error in Actor-Critic Methods.
+- Lillicrap, T. P., Hunt, J. J., Pritzel, A., Heess, N., Eerez, T., Tassa, Y., Silver, D., and Wierstra, D. (2016) Continuous Control with Deep Reinforcement Learning.
 
 
 
