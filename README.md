@@ -3,15 +3,11 @@
 
 The objective of this project is to maximize the the expected crop yield by optimizing over 13 continuous control (action) variables. The expected crop yield is determined using the `PCSE-v0` crop simulator provided in https://github.com/poomstas/spwk-agtech-task.git.
 
-The 
+The task to be completed involves a crop cultivation simulation model provided as a Python gym environment.
 
-The problem is episodic, and it runs until the growth
+The reinforcement learning task is episodic, each of which continues until the `DVS` variable’s (indicative of developmental stage) value reaches 2 or the simulation is complete.
 
-The problem is episodic: each episode begins as the wheat is planted, and ends when the 
-
-The task to be completed involves a crop cultivation simulation model provided as a Python gym environment. 
-
-Further information regarding the model is provided. The model follows a markov decision process (MDP) framework, with 11 observation (state) variables, and 13 continuous action variables. Further details regarding these variables are provided in the table below. 
+The model follows a Markov decision process (MDP) framework, with 11 observation (state) variables, and 13 continuous action variables. Further information regarding these variables is provided in the table below.
 
 **Table: Observation Variables**
 
