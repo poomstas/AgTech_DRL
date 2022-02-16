@@ -1,13 +1,15 @@
 # Deep Reinforcement Learning + Agricultural Tech
 ## Problem Statement and Overview
 
-The objective of this project is to maximize the the expected crop yield by optimizing over 13 continuous control (action) variables. The expected crop yield is determined using the `PCSE-v0` crop simulator provided in https://github.com/poomstas/spwk-agtech-task.git.
+The objective of this project is to find the optimum combination of 13 continuous control (action) variables through time to maximize wheat's crop yield. The crop yield is estimated using the `PCSE-v0` crop simulator provided in [this link](https://github.com/poomstas/spwk-agtech-task.git). 
 
-The task to be completed involves a crop cultivation simulation model provided as a Python gym environment.
+- The crop cultivation simulation model is provided as a Python gym environment.
+- The reinforcement learning task is episodic, each of which continues until the `DVS` variable’s (numerical representation of developmental stage) value reaches 2, or the simulation is complete.
+- The model follows a Markov decision process (MDP) framework, with 11 observation (state) variables, and 13 continuous action variables. 
 
-The reinforcement learning task is episodic, each of which continues until the `DVS` variable’s (indicative of developmental stage) value reaches 2 or the simulation is complete.
+Further information regarding the observation and control variables is provided in the tables below.
 
-The model follows a Markov decision process (MDP) framework, with 11 observation (state) variables, and 13 continuous action variables. Further information regarding these variables is provided in the table below.
+
 
 **Table: Observation Variables**
 
@@ -24,6 +26,7 @@ TRA	|	Crop Transpiration Rate	|	0	|	2	|	cm/day	|
 RD	|	Rooting Depth	|	10	|	120	|	cm	|
 SM	|	Soil Moisture	|	0.3	|	0.57	|	cm<sup>3</sup>/cm<sup>3</sup>	|
 WWLOW	|	Total Amnt of Water in the Soil Profile	|	54.177	|	68.5	|	cm	|
+
 
 
 **Table: Control Variables (Continuous)**
@@ -45,14 +48,15 @@ P	|	Amnt of P fertilizer in kg/ha applied on this day	|	0	|	100	|	kg/ha	|
 K	|	Amnt of K fertilizer in kg/ha applied on this day	|	0	|	100	|	kg/ha	|
 
 
+
 In the given gym environment, the above action variables are scaled from -1 to 1 using the minimum and maximum values for computational convenience.
 
-As outlined in the GitHub problem description page, the ultimate objective of the task is to create an agent that 
+The ultimate objective of the challenge is to create an agent that 
 1. maximizes the net profit, 
 2. maintains high training stability, and 
 3. achieves fast convergence.
 
-The report continues with the Executive Summary section whereI make the final recommendation. Then the three attempts are summarized in the order they were conducted, followed by the Conclusion and Future Works sections at the end.
+The report continues with the Executive Summary section where I make the final recommendation. Then the three attempts are summarized in the order they were conducted, followed by the Conclusion and Future Works sections at the end.
 
 ---
 
@@ -66,7 +70,10 @@ The model follows a markov decision process (MDP) frameowrk, with 11 observation
 
 ---
 
+
+
 ## Executive Summary
+
 Three reinforcement learning techniques were used to maximize the total episodic reward: DDPG, TD3 and SAC. I have selected these methods primarily because they:
 
 1. can be applied to problems wherein the action variables are continuous,
@@ -78,8 +85,9 @@ Three reinforcement learning techniques were used to maximize the total episodic
 Further discussions on the inner workings and the implementational details of the algorithms are provided in the respective sections of the report.
 
 As summarized in the table below, the SAC yielded the best results, and was selected to be the final submission for the challenge. This section summarizes the performance of the trained SAC model.
-\
-\
+
+
+
 **Table: Max Total Episodic Reward for Three Algorithms**
 
 DRL Algorithm	|	Max Total Episodic Reward ($/ha)	|
@@ -88,8 +96,8 @@ DDPG	|	0	|
 TD3	|	1,406	|
 SAC	|	2,802	|
 
-
 Because the SAC algorithm is inherently stochastic, it gives different results every time it is run. To evaluate the trained model accurately, I executed the SAC algorithm 1,000 times to visualize the total reward distribution. The resulting graph and data are provided below:
+
 
 
 **Table: Average and Maximum Total Episodic Reward for SAC**
@@ -98,12 +106,17 @@ Average Total Episodic Reward ($/ha) |	Max Total Episodic Reward ($/ha)|
 ---	|	---	|
 2250.47	|	2802.47	|
 
+
+
 **Figure: Distribution of Total Episodic Rewards Retrieved from 1,000 Episodes**
+
 <p align="center">
   <img src="/README_Figures/A.png" width="450" title="SAC Final Model Performance">
 </p>
 
 The hyperparameters used to train the SAC model is summarized in the table below:
+
+
 
 **Table: Hyperparameters Used to Train the Final Selected Model (SAC)**
 
@@ -124,6 +137,9 @@ Max Timesteps Per Episode	|	50,000	|
 The subsequent sections details the attempts in the order they were made.
 
 # Trial #1: Deep Deterministic Policy Gradient (DDPG)
+
+
+
 ## Algorithm
 
 The first algorithm used was Deep Deterministic Policy Gradient (DDPG). DDPG is a deep reinforcement learning technique that draws from both Q-learning and policy gradients. One of the motives for creating DDPG was that Deep Q-Network (DQN) could only handle cases where the action spaces were discrete and low-dimensional. This was the primary basis for selecting DDPG as my first attempt to solve the problem, which involves a continuous action variable.
@@ -144,13 +160,17 @@ The overview of the DDPG algorithm in the form of pseudocode is provided below.
   <img src="/README_Figures/B.png" width="600" title="DDPG Algorithm Pseudocode">
 </p>
 
+
 ## Implementation & Results
+
 ### Plateau Detection
 To ensure that the training algorithm (applied to all three algorithms) does not continue running indefinitely, I have implemented a simple plateau detection. The algorithm calculates the mean reward values of the most recent n (default set at 100) values and the most recent 2n values. If the difference is less than 0.1%, then the training is assumed to have reached a plateau, and is terminated. The implementation can be found in a function called `has_plateaued`.
 
 
 ### Grid-Based Hyperparameter Search
 Several references have mentioned that DDPG is known to be sensitive to hyperparameters (Duan et al., 2016 and Henderson et al., 2017), and accordingly, a hyperparameter search algorithm was implemented. The configuration for the grid-based hyperparameter search is summarized in the table below.
+
+
 
 **Table: Grid-Based Hyperparameter Search Configuration for DDPG**
 
@@ -172,7 +192,6 @@ The graphs below show the training results using the above hyperparameter set co
 <p align="center">
   <img src="/README_Figures/C.png" width="800" title="Training Results">
 </p>
-
 `last_100_reward_avg` is the moving window average of the last 100 rewards. It is used to smooth out the noise of the graph above.
 
 <p align="center">
@@ -192,6 +211,8 @@ Another noteworthy aspect of TD3 is that TD3 adds noise to the target action. Th
 
 Using the above modifications have effectively addressed the value overestimation problem, the efficacy of which has been demonstrated by applying TD3 and other algorithms on standard OpenAI gym environments (Fujimoto et al., 2018).
 
+
+
 **Table: Max Average Return over 10 trials of 1 million time steps (Fujimoto et al., 2018)**
 
 <p align="center">
@@ -202,6 +223,8 @@ Using the above modifications have effectively addressed the value overestimatio
 
 ## Implementation & Results
 In a fashion similar to how DDPG was approached, plateau detection and grid-based hyperparameter search was conducted. The grid-based hyperparameter search configuration is summarized in the table below.
+
+
 
 **Table: Grid-Based Hyperparameter Search Configuration for TD3**
 
@@ -316,6 +339,8 @@ Layer 1 Size	|	256	|
 Layer 2 Size	|	256	|
 Max Timesteps Per Episode	|	50,000	|
 
+
+
 **Environment Render of Best-Performing Actions (Profit: $2802.47/ha)**
 
 <p align="center">
@@ -355,7 +380,10 @@ conda install -c conda-forge tensorboard
 conda install matplotlib
 ```
 
+
+
 ## Running the Training Scripts
+
 ### The main training scripts in each folder begin with `main`. 
 
 `main_train_ddpg.py` for DDPG
@@ -375,13 +403,17 @@ To see which hyperparameters can be specified, run:
 `python main_train_ddpg.py --help`
 
 
+
 ## Check Best-Performing Action Set
+
 To visualize the results of the best-performing action set (acquired by training an SAC model), run:
 
 `python check_best_performing_action.py`
 
 
+
 ## Load the Best Trained SAC Model and Test
+
 To load the best-case SAC model, run multiple episodes on the given environment and calculate the average and maximum episode rewards,
 run the following:
 
